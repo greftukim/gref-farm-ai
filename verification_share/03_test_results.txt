@@ -1,0 +1,48 @@
+=== pytest 실행 결과 ===
+실행 일시: 2026-04-20 (Phase 1.5 기준)
+경로: C:\Users\김태우\Desktop\AI_GREF\GREF_AI\farm_ai_phase1
+
+============================= test session starts =============================
+platform win32 -- Python 3.14.3, pytest-9.0.3, pluggy-1.6.0
+collecting ... collected 7 items
+
+tests/test_end_to_end.py::test_lai_calculation         PASSED    [ 14%]
+tests/test_end_to_end.py::test_sv_relative_yield       PASSED    [ 28%]
+tests/test_end_to_end.py::test_sv_below_threshold      PASSED    [ 42%]
+tests/test_end_to_end.py::test_tomgro_scene1           PASSED    [ 57%]
+tests/test_end_to_end.py::test_final_mape              PASSED    [ 71%]
+tests/test_end_to_end.py::test_sv_lag_harvest_minus_7  PASSED    [ 85%]  ← Phase 1.5 신규
+tests/test_end_to_end.py::test_project_version_15      PASSED    [100%]  ← Phase 1.5 신규
+
+============================= 7 passed in 21.67s ==============================
+
+=== 테스트 항목별 검증 내용 ===
+
+1. test_lai_calculation
+   검증: Scene 1 LAI = 3.027 (박현도 실측 SHAPE=0.5 기준)
+   입력: leaf_length=36.3cm, leaf_width=30.0cm, n_leaves=20
+   결과: LAI = 3.027 ✓
+
+2. test_sv_relative_yield
+   검증: EC=7.69 dS/m → 상대수율 = 0.533
+   수식: 1 - 0.09 × (7.69 - 2.5) = 0.533 ✓
+
+3. test_sv_below_threshold
+   검증: EC <= 2.5 dS/m → 상대수율 = 1.0 (스트레스 없음)
+   결과: relative_yield(2.5)=1.0, relative_yield(1.0)=1.0 ✓
+
+4. test_tomgro_scene1
+   검증: Scene 1 (2025-11-06~11-12) TOMGRO 예측 ≈ 0.402 kg/m²
+   결과: 0.402 ✓
+
+5. test_final_mape
+   검증: 전 작기 5-fold CV WMAPE = 21.5% ± 1% (Phase 1.5 기준)
+   결과: 21.7% (허용 범위 내) ✓
+   [Phase 1 기준: 25.2% ± 1%]
+
+6. test_sv_lag_harvest_minus_7 [Phase 1.5 신규]
+   검증: S&V EC = 수확 7주 전 (착과기)
+   수식: TOMGRO_HARVEST_LAG(8) - SV_EC_LAG(1) = 7 ✓
+
+7. test_project_version_15 [Phase 1.5 신규]
+   검증: config.PROJECT_VERSION == "1.5" ✓

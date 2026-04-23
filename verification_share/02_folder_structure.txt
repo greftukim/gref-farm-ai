@@ -1,0 +1,62 @@
+farm_ai_phase1/
+├── PHASE2_ROADMAP.md
+├── PHASE_1.5_UPDATE.md        ← Phase 1 → 1.5 변경 상세 리포트
+├── README.md
+├── REVIEW_SUMMARY.md
+├── config.py                  ← SV_EC_LAG=1 (Phase 1.5), PROJECT_VERSION="1.5"
+├── data
+│   ├── irrigation_main.csv
+│   ├── prepare_data.py
+│   ├── priva_clean.csv
+│   └── weekly_combined.csv
+├── models
+│   ├── __init__.py
+│   ├── lai.py
+│   ├── sonneveld_voogt.py
+│   ├── tomgro_physics.py
+│   └── tomgro_week.py
+├── outputs                    ← Phase 1.5 기준 최신 결과
+│   ├── plot_mape_chain.png
+│   ├── plot_monthly.png
+│   ├── plot_weekly.png
+│   ├── scene_analysis.csv
+│   ├── validation_report.txt  ← "Phase 1.5 Validation Report", WMAPE 21.7%
+│   └── weekly_predictions.csv
+├── outputs_phase1_v1          ← Phase 1 원본 백업 (SV_EC_LAG=7, WMAPE 25.2%)
+│   ├── plot_mape_chain.png
+│   ├── plot_monthly.png
+│   ├── plot_weekly.png
+│   ├── scene_analysis.csv
+│   ├── validation_report.txt
+│   └── weekly_predictions.csv
+├── pipeline
+│   ├── __init__.py
+│   ├── step1_process_light.py
+│   ├── step2_aggregate.py
+│   ├── step3_compute_lai.py
+│   ├── step4_tomgro_run.py
+│   ├── step5_sv_with_lag.py   ← 착과기 EC 기준 docstring (Phase 1.5)
+│   ├── step6_xgboost_cv.py
+│   └── step7_validate.py      ← "Phase 1.5 Validation Report" 헤더
+├── processed
+│   ├── full_chain_predictions.csv
+│   ├── priva_hourly.csv
+│   ├── priva_weekly.csv
+│   ├── priva_with_internal.csv
+│   ├── tomgro_predictions.csv
+│   ├── tomgro_sv_predictions.csv
+│   └── weekly_with_lai.csv
+├── requirements.txt
+├── run_all.py
+├── tests
+│   ├── __init__.py
+│   └── test_end_to_end.py     ← 7 tests (Phase 1.5 신규 2개 포함)
+├── utils
+│   ├── __init__.py
+│   ├── data_loader.py
+│   └── time_aggregation.py
+└── viz
+    ├── __init__.py
+    ├── plot_mape_chain.py
+    ├── plot_monthly.py
+    └── plot_weekly.py

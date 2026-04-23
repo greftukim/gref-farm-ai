@@ -1,8 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# OS
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# IDE
 .vscode/
 .idea/
 *.swp
 *.tmp
 *.log
+
+# Node
+node_modules/
+
+# Claude Code 로컬 설정
+.claude/
+
+# 패키징 백업 (필요 시 릴리즈로 배포)
+phase1_*.zip

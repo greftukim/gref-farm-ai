@@ -1,0 +1,2922 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>방울토마토 재배 AI — GREF Farm LAB</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff; --fg: #111111; --fg-secondary: #555555; --fg-muted: #999999;
+  --border: #e0e0e0; --border-light: #f0f0f0; --border-mid: rgba(0,0,0,0.18);
+  --accent: #111111; --accent-light: #f5f5f5;
+  --surface: #ffffff; --surface2: #f5f5f5;
+  --text: #111111; --text2: #555555; --text3: #999999;
+  --radius: 2px;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+  --e1-bg: #E6F1FB; --e1-text: #0C447C;
+  --e2-bg: #EAF3DE; --e2-text: #27500A;
+  --e3-bg: #FAEEDA; --e3-text: #633806;
+  --e4-bg: #EEEDFE; --e4-text: #3C3489;
+  --tag-rl-bg: #FCEBEB; --tag-rl: #791F1F;
+  --tag-rb-bg: #F1EFE8; --tag-rb: #444441;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg); color: var(--fg);
+  line-height: 1.6; font-size: 14px;
+  letter-spacing: -0.01em; min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner { max-width: 1280px; margin: 0 auto; padding: 20px 32px 0; }
+.header-top { display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 16px; gap: 24px; flex-wrap: wrap; }
+.logo { font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.logo span { font-weight: 300; color: var(--fg-muted); margin-left: 8px; letter-spacing: 0.04em; text-transform: none; }
+.header-sub { font-size: 12px; color: var(--fg-muted); letter-spacing: 0.02em; }
+
+/* NAV */
+.tabs { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+  background: none; border: none; padding: 10px 20px;
+  font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+  color: var(--fg-muted); cursor: pointer; white-space: nowrap;
+  flex-shrink: 0; border-bottom: 2px solid transparent;
+  transition: all var(--transition); letter-spacing: 0.02em;
+}
+.tab-btn:hover { color: var(--fg); }
+.tab-btn.active { color: var(--fg); border-bottom-color: var(--fg); font-weight: 600; }
+
+/* Sub-nav */
+.sub-nav-bar {
+  position: sticky; top: 64px; z-index: 90;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  display: none; overflow-x: auto; scrollbar-width: none;
+}
+.sub-nav-bar::-webkit-scrollbar { display: none; }
+.sub-nav-bar.active { display: flex; }
+.sub-nav-bar .tab-btn { padding: 7px 18px; font-size: 11px; color: var(--fg-secondary); }
+.sub-nav-bar .tab-btn.active { color: var(--fg); border-bottom-color: var(--accent); }
+.sub-nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 32px; display: flex; }
+
+/* PRINT BUTTON */
+.print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+  font-family: var(--font-sans);
+}
+.print-btn:hover {
+  background: var(--surface2);
+  border-color: var(--fg-secondary);
+}
+
+/* MAIN */
+.main-content { max-width: 1280px; margin: 0 auto; padding: 0 32px 32px; }
+.section { display: none; }
+.section.active { display: block; }
+.sub-section { display: none; }
+.sub-section.active { display: block; }
+.container { max-width: 980px; margin: 0 auto; padding: 24px 18px 32px; }
+
+/* ══════════════════════════════════════════════════════════════
+   PRINT (A4 보고서 모드) — 브라우저 "인쇄 → PDF 저장"
+   ══════════════════════════════════════════════════════════════ */
+@media print {
+  /* A4 페이지 설정 */
+  @page {
+    size: A4;
+    margin: 15mm 14mm;
+  }
+  @page :first {
+    margin-top: 18mm;
+  }
+
+  /* 본문 기본 */
+  html, body {
+    background: white !important;
+    color: #111 !important;
+    font-size: 10.5pt;
+    line-height: 1.5;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* 화면 전용 요소 숨김 */
+  nav.tabs, .sub-nav-bar, .tab-btn,
+  header nav, .header-sub {
+    display: none !important;
+  }
+
+  /* 헤더 압축 */
+  header {
+    position: static !important;
+    border: none !important;
+    padding: 0 !important;
+    margin-bottom: 10pt !important;
+    box-shadow: none !important;
+  }
+  .header-inner, .header-top {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  .logo {
+    font-size: 16pt !important;
+    color: #111 !important;
+    margin-bottom: 4pt;
+  }
+  .logo span {
+    font-size: 10pt !important;
+    color: #666 !important;
+  }
+
+  /* 모든 탭 숨김 해제 → 전체 보고서 */
+  .section, .sub-section {
+    display: block !important;
+  }
+
+  /* 메인 콘텐츠 여백 제거 */
+  .main-content, .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* 메인 섹션 페이지 구분 */
+  #section-overview { page-break-after: always; }
+  #section-models { page-break-before: always; page-break-after: always; }
+  #section-integration { page-break-before: always; page-break-after: always; }
+  #section-appendix { page-break-before: always; page-break-after: always; }
+  #section-roadmap { page-break-before: always; }
+
+  /* 서브 섹션 (모델별) 페이지 구분 */
+  #sub-models-overview { page-break-after: always; }
+  #sub-models-tomgro,
+  #sub-models-sv,
+  #sub-models-xgboost,
+  #sub-models-deepc {
+    page-break-before: always;
+  }
+
+  /* 각 메인 섹션 시작부에 섹션명 표시 (화면에는 안 보이던 것) */
+  .section::before {
+    display: block;
+    font-size: 9pt;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4pt;
+    margin-bottom: 10pt;
+  }
+  #section-overview::before { content: "— 개요 —"; }
+  #section-models::before { content: "— 모델 상세 —"; }
+  #section-integration::before { content: "— 통합 검증 —"; }
+  #section-appendix::before { content: "— 부록 —"; }
+  #section-roadmap::before { content: "— 로드맵 —"; }
+
+  /* 제목 */
+  h1 { font-size: 16pt !important; margin-bottom: 6pt !important; }
+  h2 {
+    font-size: 13pt !important;
+    margin: 14pt 0 6pt !important;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 11pt !important;
+    margin: 10pt 0 4pt !important;
+    page-break-after: avoid;
+  }
+  .sl {
+    font-size: 8.5pt !important;
+    margin: 10pt 0 4pt !important;
+    page-break-after: avoid;
+  }
+
+  /* 본문 폰트 축소 */
+  p, li, td, th {
+    font-size: 10pt !important;
+    line-height: 1.55 !important;
+  }
+  .desc { font-size: 10.5pt !important; }
+
+  /* 카드·박스 페이지 중간 자르기 방지 */
+  .card, .note-block, .kpi-card, .kpi-row, .fig-wrap,
+  .arch-node, .arch-diagram, .phase-block {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* ═══ 서브섹션 라벨은 다음 요소와 함께 ═══ */
+  .sl {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  /* .sl 다음 요소가 페이지 시작점이 되지 않도록 */
+  .sl + * {
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+  }
+  /* .sl + card/fig-wrap 조합은 함께 유지 */
+  .sl + .card,
+  .sl + .fig-wrap,
+  .sl + .note-block,
+  .sl + .mape-chain,
+  .sl + table,
+  .sl + p,
+  .sl + .arch-diagram {
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+  }
+  /* ═══ 고아·과부 방지 (orphans/widows) ═══ */
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* ═══ 헤딩은 항상 다음 내용과 함께 ═══ */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  /* ═══ 이미지 + 캡션은 함께 유지 ═══ */
+  .fig-wrap {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  .fig-wrap img + .fig-caption,
+  .fig-caption {
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+  }
+
+  /* ═══ 표는 헤더 반복 + 행 내부 자르기 방지 ═══ */
+  table {
+    page-break-inside: auto;
+  }
+  tr, td, th {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  thead {
+    display: table-header-group;
+  }
+  tfoot {
+    display: table-footer-group;
+  }
+
+  /* 카드 스타일 간결화 */
+  .card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    margin-bottom: 8pt !important;
+  }
+  .card-body {
+    padding: 8pt 10pt !important;
+  }
+
+  /* 표 */
+  table.data-table {
+    page-break-inside: auto;
+    font-size: 9.5pt !important;
+    width: 100% !important;
+  }
+  table.data-table thead {
+    display: table-header-group;
+  }
+  table.data-table tr {
+    page-break-inside: avoid;
+  }
+  table.data-table th, table.data-table td {
+    padding: 4pt 6pt !important;
+    font-size: 9.5pt !important;
+  }
+
+  /* KPI 카드 그리드 */
+  .kpi-row {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6pt !important;
+  }
+  .kpi-card {
+    padding: 8pt !important;
+    border: 1px solid #ddd !important;
+  }
+  .kpi-val {
+    font-size: 16pt !important;
+  }
+  .kpi-label { font-size: 8.5pt !important; }
+  .kpi-note { font-size: 8pt !important; }
+
+  /* 이미지 */
+  .fig-wrap {
+    page-break-inside: avoid;
+    margin: 8pt 0 !important;
+  }
+  .fig-wrap img {
+    max-width: 100% !important;
+    max-height: 120mm !important;
+    height: auto !important;
+    display: block;
+    margin: 0 auto;
+  }
+  .fig-caption {
+    font-size: 8.5pt !important;
+    color: #555 !important;
+    padding: 3pt 4pt !important;
+    line-height: 1.5 !important;
+  }
+
+  /* 3단계 체인 (MAPE chain) */
+  .mape-step { padding: 6pt !important; }
+  .mape-step .value { font-size: 13pt !important; }
+  .mape-delta { font-size: 9pt !important; padding: 5pt !important; }
+
+  /* 아키텍처 다이어그램 */
+  .arch-diagram {
+    padding: 8pt !important;
+    page-break-inside: auto !important;  /* 전체가 너무 크면 내부에서 잘라도 됨 */
+    break-inside: auto !important;
+  }
+  .arch-node {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  .arch-node-body {
+    padding: 5pt 8pt !important;
+    font-size: 9.5pt !important;
+  }
+  .arch-step-name { font-size: 10.5pt !important; }
+  .arch-sub { font-size: 9pt !important; }
+
+  /* 아키텍처 내부 연결선·분기는 노드와 함께 유지되게 */
+  .arch-connector, .arch-fork, .arch-merge, .arch-branch-row {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* STEP 3 분기 박스는 STEP 3 박스 내부와 함께 */
+  .arch-node.human {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* 두 경로 병렬 섹션은 가능하면 한 페이지 */
+  .arch-two-paths {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* 노트 박스 */
+  .note-block {
+    padding: 6pt 10pt !important;
+    font-size: 9.5pt !important;
+    line-height: 1.5 !important;
+    margin: 6pt 0 !important;
+  }
+
+  /* 로드맵 Phase 카드 */
+  .phase-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 5pt !important;
+  }
+  .phase-block { padding: 8pt !important; }
+  .phase-mape { font-size: 14pt !important; }
+  .phase-desc, .phase-tasks { font-size: 8.5pt !important; }
+
+  /* 에러 바 */
+  .error-bar-item {
+    grid-template-columns: 160px 1fr 45px !important;
+    page-break-inside: avoid;
+    font-size: 9.5pt !important;
+  }
+
+  /* ═══ 섹션 그룹 래퍼 (.sl + 다음 요소를 한 덩어리로) ═══ */
+  /* HTML 구조상 .sl 과 후속 요소를 <div class="print-keep"> 로 감싸면 통째 유지 */
+  .print-keep {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  /* 복합 구성 요소 (.sl + card + card) 는 너무 크면 허용 */
+  .print-keep-loose {
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+  .print-keep-loose .sl {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  /* 링크 색상 (인쇄 시 검정) */
+  a {
+    color: #111 !important;
+    text-decoration: none !important;
+  }
+
+  /* 불필요한 UI 요소 제거 */
+  .pdf-link-box, .model-btn, button {
+    display: none !important;
+  }
+
+  /* 배경·강조색 유지 */
+  .note-tip, .note-info, .note-warn, .note-alert,
+  .kpi-card, .phase-block, .mape-step,
+  .arch-node, .arch-branch-box,
+  .badge {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* 인쇄 전용 보고서 헤더 */
+  body::before {
+    content: "방울토마토 재배 AI · Phase 1.5 결과 보고서 (2026-04)";
+    display: block;
+    font-size: 8pt;
+    color: #888;
+    text-align: right;
+    padding-bottom: 6pt;
+    margin-bottom: 10pt;
+    border-bottom: 1px solid #ccc;
+  }
+}
+
+h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; line-height: 1.3; }
+h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.015em; margin: 28px 0 10px; }
+h3 { font-size: 15px; font-weight: 700; color: var(--text); margin: 20px 0 6px; }
+.sl { font-size: 10.5px; font-weight: 500; color: var(--text3); text-transform: uppercase;
+  letter-spacing: 0.08em; margin: 20px 0 6px; }
+.sl:first-child { margin-top: 0; }
+.desc { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 16px; max-width: 800px; }
+p { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 10px; }
+p strong { color: var(--text); font-weight: 600; }
+
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  overflow: hidden; margin-bottom: 8px; }
+.card-header { padding: 8px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.card-title { font-weight: 500; font-size: 15px; color: var(--text); }
+.card-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.card-body { padding: 12px 14px; overflow-x: auto; }
+
+/* KPI */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+@media(max-width: 640px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+.kpi-card { background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 14px; box-shadow: var(--shadow); }
+.kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase;
+  letter-spacing: 0.07em; margin-bottom: 6px; }
+.kpi-val { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.2; }
+.kpi-unit { font-size: 12px; color: var(--text3); font-weight: 400; margin-left: 3px; }
+.kpi-note { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* TABLE */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { background: var(--surface2); color: var(--text3); font-weight: 500;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+.data-table td { padding: 7px 10px; border-bottom: 1px solid var(--border);
+  color: var(--text); line-height: 1.5; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface2); }
+.num { font-variant-numeric: tabular-nums; }
+.data-table td strong { font-weight: 700; }
+
+/* MODEL CARDS */
+.model-card { background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow);
+  overflow: hidden; transition: all var(--transition); }
+.model-card:hover { box-shadow: 0 2px 20px rgba(0,0,0,0.06); }
+.model-header { display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.edition-dot { width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; flex-shrink: 0; }
+.e1 { background: var(--e1-bg); color: var(--e1-text); }
+.e2 { background: var(--e2-bg); color: var(--e2-text); }
+.e3 { background: var(--e3-bg); color: var(--e3-text); }
+.e4 { background: var(--e4-bg); color: var(--e4-text); }
+.e-ml { background: var(--tag-rl-bg); color: var(--tag-rl); }
+.e-rb { background: var(--tag-rb-bg); color: var(--tag-rb); font-size: 10px; }
+.model-title-wrap { flex: 1; min-width: 0; }
+.model-name { font-weight: 600; font-size: 15px; color: var(--text); line-height: 1.3; }
+.model-team { font-size: 11.5px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
+.model-tag { font-size: 10.5px; padding: 3px 8px; border-radius: var(--radius);
+  font-weight: 500; letter-spacing: 0.02em; flex-shrink: 0; }
+.model-body { padding: 14px 16px; }
+.model-desc { font-size: 13px; color: var(--text2); line-height: 1.65; margin-bottom: 12px; }
+.model-stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  margin-bottom: 12px; padding: 10px; background: var(--surface2); border-radius: var(--radius); }
+.model-stat { font-size: 12px; }
+.model-stat .l { color: var(--text3); font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: 3px; }
+.model-stat .v { font-size: 15px; font-weight: 700; color: var(--text); }
+.model-actions { display: flex; gap: 6px; }
+.model-btn { padding: 6px 12px; border-radius: var(--radius); font-size: 12px;
+  font-weight: 500; text-decoration: none; text-align: center;
+  transition: all var(--transition); border: 1px solid var(--border);
+  background: var(--surface); color: var(--text2); font-family: var(--font-sans); }
+.model-btn:hover { background: var(--surface2); color: var(--fg); }
+.model-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+.model-btn.primary:hover { background: #000; }
+
+/* TWO-COL */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media(max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+/* ARCHITECTURE DIAGRAM — 분기 구조 */
+.arch-legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 10px 14px;
+  background: var(--surface2); border-radius: var(--radius); font-size: 11.5px; margin-bottom: 12px; }
+.arch-legend-item { display: flex; align-items: center; gap: 6px; }
+.arch-legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+.arch-diagram { display: flex; flex-direction: column; align-items: stretch;
+  padding: 18px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); }
+
+.arch-node { border-radius: var(--radius); border: 1.5px solid; padding: 0;
+  max-width: 620px; width: 100%; align-self: center; overflow: hidden; }
+.arch-node.done { border-color: #3B6D11; background: var(--e2-bg); }
+.arch-node.pending { border-color: #884C06; background: var(--e3-bg); }
+.arch-node.human { border-color: #185FA5; background: var(--e1-bg); }
+.arch-node.compute { border-color: var(--border); background: var(--surface2); }
+
+.arch-node-head { display: flex; align-items: center; gap: 10px; padding: 9px 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 13px; }
+.arch-step-tag { display: inline-block; padding: 2px 8px; background: rgba(0,0,0,0.08);
+  color: var(--text); font-weight: 700; font-size: 10.5px; letter-spacing: 0.08em;
+  border-radius: var(--radius); }
+.arch-step-name { font-weight: 700; font-size: 13.5px; color: var(--text); flex: 1; }
+.arch-step-status { font-size: 10px; font-weight: 600; padding: 2px 8px;
+  border-radius: var(--radius); text-transform: uppercase; letter-spacing: 0.06em; }
+.status-done { background: #3B6D11; color: white; }
+.status-pending { background: #884C06; color: white; }
+.status-human { background: #185FA5; color: white; }
+
+.arch-node-body { padding: 10px 14px; font-size: 12px; color: var(--text2); line-height: 1.7; }
+.arch-node-body strong { color: var(--text); }
+.arch-sub { color: var(--text3); font-size: 11.5px; font-family: "JetBrains Mono", monospace; }
+
+/* 세로 연결선 */
+.arch-connector { display: flex; flex-direction: column; align-items: center; padding: 3px 0; }
+.arch-line-v { width: 2px; height: 18px; background: var(--text3); }
+.arch-label { font-size: 10.5px; color: var(--text3); margin-top: 3px;
+  padding: 2px 8px; background: var(--surface2); border-radius: var(--radius); }
+
+/* STEP 3 내부 분기 박스 */
+.arch-branch-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  padding: 10px 14px 14px; }
+.arch-branch-box { padding: 10px 12px; border-radius: var(--radius);
+  border: 1.5px solid; text-align: center; }
+.arch-branch-box.sufficient { background: var(--e2-bg); border-color: #3B6D11; }
+.arch-branch-box.insufficient { background: var(--tag-rl-bg); border-color: var(--tag-rl); }
+.arch-branch-label { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+.arch-branch-box.sufficient .arch-branch-label { color: #3B6D11; }
+.arch-branch-box.insufficient .arch-branch-label { color: var(--tag-rl); }
+.arch-branch-text { font-size: 12.5px; color: var(--text); font-weight: 600; }
+
+/* 분기 포크 (Y 자 연결) */
+.arch-fork { display: grid; grid-template-columns: 1fr 1fr; max-width: 620px;
+  width: 100%; align-self: center; padding: 0 30px; }
+.arch-fork-left, .arch-fork-right { display: flex; flex-direction: column;
+  align-items: center; padding: 0; }
+.arch-fork-line { width: 2px; height: 22px; background: var(--text3); }
+.arch-fork-label { font-size: 10.5px; color: var(--text3); margin-top: 3px;
+  padding: 2px 8px; background: var(--surface2); border-radius: var(--radius);
+  text-align: center; }
+
+/* 두 경로 병렬 */
+.arch-two-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  margin-top: 10px; align-items: stretch; }
+.arch-path-left, .arch-path-right { display: flex; flex-direction: column; gap: 4px; }
+
+/* 왼쪽 경로 — 빈 공간이지만 점선 세로선으로 STEP 6 합류 표시 */
+.arch-path-empty { position: relative; min-height: 200px;
+  display: flex; align-items: center; justify-content: center; }
+.arch-path-empty::before { content: ''; position: absolute; top: 0; bottom: 0;
+  left: 50%; width: 0; border-left: 2px dashed var(--text3); }
+.arch-path-empty::after { content: '바로 STEP 6 으로'; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 11px; color: var(--text3); padding: 4px 10px;
+  background: var(--surface); border: 1px solid var(--border-light);
+  border-radius: var(--radius); white-space: nowrap; }
+
+.arch-path-left .arch-node, .arch-path-right .arch-node { max-width: 100%; }
+
+/* 합류선 */
+.arch-merge { display: flex; justify-content: center; padding: 8px 0; }
+.arch-merge-line { width: 60%; max-width: 400px; height: 2px; background: var(--text3);
+  position: relative; }
+.arch-merge-line::before, .arch-merge-line::after {
+  content: ''; position: absolute; top: 0; width: 2px; height: 18px;
+  background: var(--text3); }
+.arch-merge-line::before { left: 0; top: -18px; }
+.arch-merge-line::after { right: 0; top: -18px; }
+
+/* 합류선 하단 아래 */
+.arch-merge + .arch-node { margin-top: 18px; position: relative; }
+.arch-merge + .arch-node::before { content: ''; position: absolute;
+  top: -20px; left: 50%; width: 2px; height: 20px; background: var(--text3); }
+
+@media(max-width: 700px) {
+  .arch-two-paths { grid-template-columns: 1fr; }
+  .arch-fork { grid-template-columns: 1fr; }
+  .arch-branch-row { grid-template-columns: 1fr; }
+}
+
+/* MAPE CHAIN */
+.mape-chain { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.mape-step { flex: 1; min-width: 110px; padding: 12px 14px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); text-align: center; }
+.mape-step .stage { font-size: 10.5px; color: var(--text3); text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: 4px; }
+.mape-step .value { font-size: 20px; font-weight: 700; color: var(--text); }
+.mape-step.s-start .value { color: var(--tag-rl); }
+.mape-step.s-mid .value { color: var(--e3-text); }
+.mape-step.s-end .value { color: var(--e2-text); }
+.mape-arrow { color: var(--text3); font-size: 14px; font-weight: 500; }
+.mape-delta { text-align: center; padding: 10px 14px; color: var(--e2-text);
+  font-size: 12.5px; font-weight: 600; background: var(--e2-bg);
+  border-radius: var(--radius); margin-top: 6px; }
+
+/* ERROR BARS */
+.error-bars { display: flex; flex-direction: column; }
+.error-bar-item { display: grid; grid-template-columns: 220px 1fr 50px; gap: 14px;
+  align-items: center; font-size: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+.error-bar-item:last-child { border-bottom: none; }
+.error-bar-label { font-size: 12.5px; color: var(--text); font-weight: 500; }
+.error-bar-label .sol { font-size: 11px; color: var(--text3); font-weight: 400;
+  display: block; margin-top: 2px; }
+.error-bar-track { height: 18px; background: var(--surface2); border-radius: var(--radius); overflow: hidden; }
+.error-bar-fill { height: 100%; border-radius: var(--radius); }
+.error-bar-pct { font-size: 13px; font-weight: 700; text-align: right; }
+@media(max-width: 700px) { .error-bar-item { grid-template-columns: 1fr; gap: 6px; } }
+
+/* PHASE */
+.phase-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+@media(max-width: 700px) { .phase-grid { grid-template-columns: repeat(2, 1fr); } }
+.phase-block { padding: 14px 14px; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--surface); transition: all var(--transition); }
+.phase-block.p1 { background: var(--tag-rl-bg); border-color: #EFAAB1; }
+.phase-block.p2 { background: var(--e3-bg); border-color: #EFC293; }
+.phase-block.p3 { background: var(--e2-bg); border-color: #C0DD97; }
+.phase-block.pr { background: var(--e1-bg); border-color: #85B7EB; opacity: 0.9; }
+.phase-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  font-weight: 600; margin-bottom: 4px; color: var(--text3); }
+.phase-mape { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+.phase-block.p1 .phase-mape { color: var(--tag-rl); }
+.phase-block.p2 .phase-mape { color: var(--e3-text); }
+.phase-block.p3 .phase-mape { color: var(--e2-text); }
+.phase-block.pr .phase-mape { color: var(--e1-text); }
+.phase-desc { font-size: 11.5px; color: var(--text2); margin-bottom: 10px; font-weight: 500; }
+.phase-tasks { text-align: left; font-size: 11px; color: var(--text2); line-height: 1.7;
+  padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.08); }
+
+/* NOTES */
+.note-block { padding: 10px 14px; border-radius: var(--radius); border-left: 3px solid;
+  font-size: 12.5px; line-height: 1.65; margin: 10px 0; }
+.note-tip { border-color: #3B6D11; background: var(--e2-bg); color: var(--e2-text); }
+.note-info { border-color: #185FA5; background: var(--e1-bg); color: var(--e1-text); }
+.note-warn { border-color: #884C06; background: var(--e3-bg); color: var(--e3-text); }
+.note-alert { border-color: #791F1F; background: var(--tag-rl-bg); color: var(--tag-rl); }
+.note-block strong { font-weight: 700; }
+
+/* BADGES */
+.badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius);
+  font-size: 11px; font-weight: 500; }
+.badge-green { background: var(--e2-bg); color: var(--e2-text); }
+.badge-blue { background: var(--e1-bg); color: var(--e1-text); }
+.badge-amber { background: var(--e3-bg); color: var(--e3-text); }
+.badge-purple { background: var(--e4-bg); color: var(--e4-text); }
+.badge-red { background: var(--tag-rl-bg); color: var(--tag-rl); }
+.badge-gray { background: var(--tag-rb-bg); color: var(--tag-rb); }
+
+/* IMAGES */
+.fig-wrap { margin: 16px 0; border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+.fig-wrap img { width: 100%; display: block; cursor: zoom-in; transition: opacity var(--transition); }
+.fig-wrap img:hover { opacity: 0.9; }
+.fig-caption { padding: 8px 14px; background: var(--surface2); font-size: 11.5px;
+  color: var(--text3); border-top: 1px solid var(--border); }
+.fig-caption strong { color: var(--text2); }
+
+/* LIGHTBOX */
+.lightbox-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 9999;
+  cursor: zoom-out;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  animation: fadeIn 0.2s ease;
+}
+.lightbox-overlay.active { display: flex; flex-direction: column; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: calc(100vh - 140px);
+  object-fit: contain;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.5);
+  user-select: none;
+}
+.lightbox-caption {
+  color: #e0e0e0;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+  margin-top: 20px;
+  max-width: 800px;
+  padding: 0 20px;
+}
+.lightbox-caption strong { color: #ffffff; }
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
+  font-family: inherit;
+}
+.lightbox-close:hover { background: rgba(255,255,255,0.2); }
+.lightbox-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.5);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+/* FORMULA */
+.formula-block { background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; margin: 12px 0;
+  font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 12.5px;
+  line-height: 1.7; color: var(--text); overflow-x: auto; white-space: pre; }
+
+/* PDF LINK BOX */
+.pdf-link-box { display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); margin: 20px 0; gap: 16px; }
+.pdf-link-box > div { flex: 1; min-width: 0; }
+.pdf-link-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.pdf-link-desc { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.pdf-link-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* FOOTER */
+.page-footer { max-width: 1280px; margin: 40px auto 0; padding: 32px;
+  text-align: center; font-size: 11px; color: var(--text3);
+  letter-spacing: 0.08em; text-transform: uppercase; border-top: 1px solid var(--border); }
+
+@media(max-width: 768px) {
+  .header-inner { padding: 16px 18px 0; }
+  .main-content { padding: 0 18px 32px; }
+  .container { padding: 20px 12px 24px; }
+  h1 { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="logo">GREF <span>Farm LAB 운영전략</span></div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="header-sub">방울토마토 재배 AI · Phase 1.5 기술 문서 시리즈</div>
+        <button class="print-btn" onclick="window.print()" title="A4 보고서로 인쇄 / PDF 저장">
+          🖨️ 보고서 인쇄
+        </button>
+      </div>
+    </div>
+    <nav class="tabs" id="main-tabs">
+      <button class="tab-btn active" onclick="switchMain('overview',this)">개요</button>
+      <button class="tab-btn" onclick="switchMain('models',this)">모델</button>
+      <button class="tab-btn" onclick="switchMain('integration',this)">통합 검증</button>
+      <button class="tab-btn" onclick="switchMain('appendix',this)">부록</button>
+      <button class="tab-btn" onclick="switchMain('roadmap',this)">로드맵</button>
+    </nav>
+  </div>
+  <!-- Sub nav for 모델 tab -->
+  <div class="sub-nav-bar" id="sub-nav-models">
+    <div class="sub-nav-inner">
+      <button class="tab-btn active" onclick="switchSub('models','overview',this)">개요</button>
+      <button class="tab-btn" onclick="switchSub('models','tomgro',this)">TOMGRO</button>
+      <button class="tab-btn" onclick="switchSub('models','sv',this)">Sonneveld &amp; Voogt</button>
+      <button class="tab-btn" onclick="switchSub('models','xgboost',this)">XGBoost</button>
+      <button class="tab-btn" onclick="switchSub('models','deepc',this)">DeePC</button>
+    </div>
+  </div>
+</header>
+
+<div class="main-content">
+
+<!-- ════════ 개요 ════════ -->
+<div id="section-overview" class="section active">
+  <div class="container">
+    <div class="sl">SECTION 00 · OVERVIEW</div>
+    <h1>방울토마토 재배 AI — Phase 1 완료</h1>
+    <p class="desc">
+      물리 기반 모델(TOMGRO, Sonneveld &amp; Voogt) · 머신러닝(XGBoost) · 데이터 기반 제어(DeePC) 를 통합한
+      수확량 예측·환경 처방 AI 시스템. 1작기 검증을 통해 <strong>예측 오차율 21.7%</strong> 달성 및
+      남은 오차 원인의 구조적 해결 경로 확보.
+    </p>
+
+    <div class="sl">핵심 지표</div>
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Phase 1.5 통합 오차율</div>
+        <div class="kpi-val">21.7<span class="kpi-unit">%</span></div>
+        <div class="kpi-note">TOMGRO → S&amp;V → XGBoost</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">저온기 월별 최저 오차율</div>
+        <div class="kpi-val">7.6<span class="kpi-unit">%</span></div>
+        <div class="kpi-note">11월 전체 평균</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">DeePC 밴드 준수율</div>
+        <div class="kpi-val">100<span class="kpi-unit">%</span></div>
+        <div class="kpi-note">실제 운영 14% 대비 (v8)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Phase 2 목표</div>
+        <div class="kpi-val">13~17<span class="kpi-unit">%</span></div>
+        <div class="kpi-note">오차 원인 해결 기반</div>
+      </div>
+    </div>
+
+    <div class="note-block note-info" style="margin-top: 16px;">
+      <strong>용어 안내</strong><br>
+      <strong>오차율</strong>: 예측값과 실제값의 상대적 차이를 % 로 표현한 지표 (학술명 MAPE)
+      예) 오차율 30% → 실제 수확량 100 kg 이면 예측은 70~130 kg 사이로 맞춤
+      <br>
+      <strong>에너지 배분 (건물 배분)</strong>: 광합성으로 만든 에너지를 잎·줄기·열매에 각각 얼마나 나누는지
+      <br>
+      <strong>데이터 부족</strong>: 학습 샘플이 적어 모델이 안정적으로 일반화하지 못하는 상태 (학술명 과적합)
+    </div>
+
+    <div class="sl">작기 정보</div>
+    <div class="card">
+      <div class="card-body">
+        <table class="data-table">
+          <tr><td style="width:200px; color:var(--text3);">작기 기간</td><td class="num">2025-07-09 ~ 2026-04-08 (40주, 약 9개월)</td></tr>
+          <tr><td style="color:var(--text3);">면적</td><td class="num">826.5 m²</td></tr>
+          <tr><td style="color:var(--text3);">품종</td><td>토마지노 (방울토마토)</td></tr>
+          <tr><td style="color:var(--text3);">정식 일자</td><td class="num">2025-07-09</td></tr>
+          <tr><td style="color:var(--text3);">유효 비교 주차</td><td class="num">28주 (TOMGRO·S&amp;V 예측 + 8주 후 실측 &gt; 0)</td></tr>
+          <tr><td style="color:var(--text3);">총 실측 수확량</td><td class="num">11.4 kg/m² (33주 합계)</td></tr>
+          <tr><td style="color:var(--text3);">작기 구분</td><td>
+            <span class="badge badge-red">저온기 한겨울 (11월 중순)</span>
+            <span class="badge badge-amber">고온기 초가을 (8월 중순)</span>
+            <span class="badge badge-green">저온기 초봄 (1월 초)</span>
+          </td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="sl">프로젝트 방향성</div>
+    <div class="card">
+      <div class="card-body">
+        <table class="data-table">
+          <tr>
+            <td style="width:200px; color:var(--text3);">주요 타겟</td>
+            <td>
+              <strong>대규모 스마트팜 자체 운영</strong> (대농 규모 · 인력 기반 품질 관리 한계)<br>
+              <strong>청년농·기업농 진입자</strong> (진입 장벽 낮추기 · 경험 부족 보완)
+            </td>
+          </tr>
+          <tr>
+            <td style="color:var(--text3);">비(非) 타겟</td>
+            <td>연차 쌓인 기존 재배사 (자기 노하우·경험 확립 → AI 의존도 낮음)</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text3);">왜 AI 인가</td>
+            <td>
+              일정 규모 이상에서는 <strong>인력만으로 품질 관리 불가능</strong><br>
+              → AI 기반 자동화로 재배 의사결정 지원 필수
+            </td>
+          </tr>
+          <tr>
+            <td style="color:var(--text3);">기술 방향</td>
+            <td>
+              <strong>물리 모델 + 머신러닝 + 데이터 제어</strong> 하이브리드 구조<br>
+              해석 가능성 유지 (재배사와 대화 가능) + 오차 구조 투명 공개
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="sl">시스템 전체 아키텍처</div>
+    <p style="font-size: 12.5px; color: var(--text2); margin-bottom: 14px; line-height: 1.7;">
+      현재 온실 상황 → AI 예측 → <strong>재배사 판단 (분기점)</strong> → 목표 입력 → 역산 → 설비 제어 의 7단계 흐름
+      예측은 AI 가, 의사결정은 재배사가, 설비 조정은 DeePC 가 담당하는 <strong>사람-AI 협업 구조</strong>
+    </p>
+
+    <div class="arch-legend">
+      <div class="arch-legend-item"><span class="arch-legend-dot" style="background: #3B6D11;"></span>구현 완료 (Phase 1)</div>
+      <div class="arch-legend-item"><span class="arch-legend-dot" style="background: #884C06;"></span>Phase 2 구현 예정</div>
+      <div class="arch-legend-item"><span class="arch-legend-dot" style="background: #185FA5;"></span>사람 개입 (재배사)</div>
+    </div>
+
+    <div class="arch-diagram">
+
+      <!-- STEP 1 -->
+      <div class="arch-node done">
+        <div class="arch-node-head">
+          <span class="arch-step-tag">STEP 1</span>
+          <span class="arch-step-name">현재 상황 파악</span>
+          <span class="arch-step-status status-done">구현</span>
+        </div>
+        <div class="arch-node-body">
+          온실 센서 (PRIVA) + 생육 조사 + 농작업 기록<br>
+          <span class="arch-sub">· 온도 / CO₂ / 광량 / EC / 습도 (5분 단위)</span><br>
+          <span class="arch-sub">· LAI / 엽수 / 엽장·엽폭 (주간)</span><br>
+          <span class="arch-sub">· 적엽 / 적과 기록 (FarmWork)</span>
+        </div>
+      </div>
+
+      <div class="arch-connector">
+        <div class="arch-line-v"></div>
+        <div class="arch-label">현재 환경 + 생육 상태</div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="arch-node done">
+        <div class="arch-node-head">
+          <span class="arch-step-tag">STEP 2</span>
+          <span class="arch-step-name">AI 예측 (순방향)</span>
+          <span class="arch-step-status status-done">구현</span>
+        </div>
+        <div class="arch-node-body">
+          <strong>TOMGRO → S&amp;V → XGBoost</strong> 3단계 체인<br><br>
+          예측 수확량: <strong>0.725 kg/m²</strong> (8주 뒤)<br>
+          <span class="arch-sub">├─ TOMGRO 단독: 0.402 kg (이론 상한)</span><br>
+          <span class="arch-sub">├─ + S&amp;V (EC 보정): 0.214 kg</span><br>
+          <span class="arch-sub">└─ + XGBoost 보정: 0.725 kg (최종 예측)</span>
+        </div>
+      </div>
+
+      <div class="arch-connector">
+        <div class="arch-line-v"></div>
+        <div class="arch-label">예측 결과 표시</div>
+      </div>
+
+      <!-- STEP 3 : 분기점 -->
+      <div class="arch-node human">
+        <div class="arch-node-head">
+          <span class="arch-step-tag">STEP 3</span>
+          <span class="arch-step-name">재배사 의사결정 (사람 개입)</span>
+          <span class="arch-step-status status-human">사람</span>
+        </div>
+        <div class="arch-node-body" style="text-align: center; padding-bottom: 6px;">
+          재배사가 예측값 확인 → 판단<br>
+          <strong style="font-size: 13px;">"AI 예측 0.725 kg 충분한가?"</strong>
+        </div>
+        <div class="arch-branch-row">
+          <div class="arch-branch-box sufficient">
+            <div class="arch-branch-label">✓ 충분함</div>
+            <div class="arch-branch-text">유지하자</div>
+          </div>
+          <div class="arch-branch-box insufficient">
+            <div class="arch-branch-label">✗ 부족함</div>
+            <div class="arch-branch-text">0.9 kg 목표 설정</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 분기 연결선 -->
+      <div class="arch-fork">
+        <div class="arch-fork-left">
+          <div class="arch-fork-line"></div>
+          <div class="arch-fork-label">현 환경 유지</div>
+        </div>
+        <div class="arch-fork-right">
+          <div class="arch-fork-line"></div>
+          <div class="arch-fork-label">목표 수확량 입력 (0.9 kg)</div>
+        </div>
+      </div>
+
+      <!-- 두 경로 병렬 -->
+      <div class="arch-two-paths">
+
+        <!-- 왼쪽: 충분함 → 바로 STEP 6 으로 합류 (빈 공간, 선만 이어짐) -->
+        <div class="arch-path-left arch-path-empty"></div>
+
+        <!-- 오른쪽: 부족함 → STEP 4 → STEP 5 -->
+        <div class="arch-path-right">
+
+          <!-- STEP 4 -->
+          <div class="arch-node pending">
+            <div class="arch-node-head">
+              <span class="arch-step-tag">STEP 4</span>
+              <span class="arch-step-name">역산 (목표 → 환경)</span>
+              <span class="arch-step-status status-pending">Phase 2</span>
+            </div>
+            <div class="arch-node-body">
+              <strong>TOMGRO 수식 역산</strong><br><br>
+              목표 0.9 kg 달성하려면?<br>
+              <span class="arch-sub">→ 과실 건물 63.0 g DM 필요</span><br>
+              <span class="arch-sub">→ 주간 총광합성 187 g CH₂O 필요</span><br>
+              <span class="arch-sub">→ 평균 DLI 25 mol/m²/day 필요</span><br><br>
+              <strong>최적 환경 조건:</strong><br>
+              <span class="arch-sub">· 기온 23°C (주간)</span><br>
+              <span class="arch-sub">· CO₂ 800 ppm</span><br>
+              <span class="arch-sub">· LAI 3.5 이상 유지</span>
+            </div>
+          </div>
+
+          <div class="arch-connector">
+            <div class="arch-line-v"></div>
+            <div class="arch-label">목표 환경 조건</div>
+          </div>
+
+          <!-- STEP 5 -->
+          <div class="arch-node done">
+            <div class="arch-node-head">
+              <span class="arch-step-tag">STEP 5</span>
+              <span class="arch-step-name">DeePC 제어 처방</span>
+              <span class="arch-step-status status-done">구현</span>
+            </div>
+            <div class="arch-node-body">
+              <strong>DeePC (데이터 기반 예측 제어)</strong><br><br>
+              "환경 23°C · 800 ppm 만들려면<br>
+              설비는 어떻게 조정?"<br><br>
+              <strong>제어 처방:</strong><br>
+              <span class="arch-sub">· 천창 개도 15%</span><br>
+              <span class="arch-sub">· 에너지 스크린 70% 닫기</span><br>
+              <span class="arch-sub">· 난방 파이프 45°C</span><br>
+              <span class="arch-sub">· CO₂ 공급 +200 ppm</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 합류 연결선 -->
+      <div class="arch-merge">
+        <div class="arch-merge-line"></div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="arch-node compute">
+        <div class="arch-node-head">
+          <span class="arch-step-tag">STEP 6</span>
+          <span class="arch-step-name">PRIVA 제어 시스템 반영</span>
+          <span class="arch-step-status status-done">구현</span>
+        </div>
+        <div class="arch-node-body">
+          실제 온실 설비 조정 (자동 또는 수동)<br>
+          → 환경 변화 → 생육 반응 → 8주 뒤 실제 수확
+        </div>
+      </div>
+
+      <div class="arch-connector">
+        <div class="arch-line-v"></div>
+        <div class="arch-label">실측 데이터 누적</div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="arch-node pending">
+        <div class="arch-node-head">
+          <span class="arch-step-tag">STEP 7</span>
+          <span class="arch-step-name">피드백 루프 (학습)</span>
+          <span class="arch-step-status status-pending">Phase 2</span>
+        </div>
+        <div class="arch-node-body">
+          <strong>예측 vs 실측 비교</strong><br>
+          → XGBoost 재학습, 오차율 감소<br>
+          → 다음 작기 예측 정확도 개선
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note-block note-info" style="margin-top: 14px;">
+      <strong>💡 AI 가 사람을 대체하지 않는 설계</strong><br>
+      의사결정 (STEP 3) 은 재배사가, 계산·역산·처방 (STEP 2·4·5) 은 AI 가 담당함
+      재배사는 AI 예측을 참고하여 <strong>현실적 목표 설정</strong> 을 하고, AI 는 그 목표 달성을 위한 <strong>환경·설비 설정값</strong> 을 제시함
+      <br><br>
+      <strong>Phase 1 구현</strong>: STEP 1·2·5·6 · <strong>Phase 2 구현 예정</strong>: STEP 3 UI·STEP 4 역산·STEP 7 자동 재학습
+    </div>
+
+    <div class="print-keep">
+      <div class="sl">모델 조합별 단계적 예측</div>
+      <div class="card">
+        <div class="card-body">
+          <div class="mape-chain">
+            <div class="mape-step s-start">
+              <div class="stage">TOMGRO 단독</div>
+              <div class="value">25.6%</div>
+            </div>
+            <div class="mape-arrow">→</div>
+            <div class="mape-step s-mid">
+              <div class="stage">+ S&amp;V</div>
+              <div class="value">34.1%</div>
+            </div>
+            <div class="mape-arrow">→</div>
+            <div class="mape-step s-end">
+              <div class="stage">+ XGBoost</div>
+              <div class="value">21.7%</div>
+            </div>
+          </div>
+          <div class="mape-delta">물리 모델 → 경험식 → 머신러닝 3단계 체인 (최종 21.7%)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-block note-tip" style="margin-top: 24px;">
+      <strong>본 프로젝트의 핵심 가치</strong><br>
+      Phase 1.5 오차율 <strong>21.7%</strong> 를 달성함과 동시에, <strong>남은 오차의 구조를 5가지 원인으로 분해</strong>하고
+      각 원인마다 해결 경로를 확보함 Phase 2 목표 오차율 13~17% 는
+      <strong>구조적으로 계산된 예상</strong>이며, 단순 희망이 아님
+    </div>
+  </div>
+</div>
+
+<!-- ════════ 모델 ════════ -->
+<div id="section-models" class="section">
+
+  <!-- 개요 -->
+  <div id="sub-models-overview" class="sub-section active">
+    <div class="container">
+      <div class="sl">SECTION 01 · MODELS</div>
+      <h1>4개 모델 기술 문서</h1>
+      <p class="desc">
+        각 모델의 수식 · 파라미터 · 검증 결과를 상세히 기술한 개별 문서. 물리 모델(TOMGRO, S&amp;V) · 머신러닝(XGBoost) · 제어(DeePC).
+      </p>
+
+      <div class="sl">문서 목록</div>
+      <div class="two-col">
+        <div class="model-card">
+          <div class="model-header">
+            <div class="edition-dot e1">01</div>
+            <div class="model-title-wrap">
+              <div class="model-name">TOMGRO</div>
+              <div class="model-team">광합성·건물 생산 기반 이론 수량 예측</div>
+            </div>
+            <span class="model-tag badge-blue">물리 모델</span>
+          </div>
+          <div class="model-body">
+            <div class="model-desc">
+              Jones et al. (1991) 방울토마토 동적 생장 모델. 광합성·호흡·에너지 배분 (건물 분배) 을 수식으로 기술하여
+              주간 수확량을 예측.
+            </div>
+            <div class="model-stats-row">
+              <div class="model-stat"><div class="l">단독 오차율</div><div class="v">25.6%</div></div>
+              <div class="model-stat"><div class="l">저온기 한겨울 예측</div><div class="v">0.402 kg/m²</div></div>
+            </div>
+            <div class="model-actions">
+              <a href="#" onclick="switchSub('models','tomgro',document.querySelector('#sub-nav-models .tab-btn:nth-child(2)')); return false;" class="model-btn primary">자세히 보기</a>
+              <a href="01_TOMGRO/output/TOMGRO_tech_doc.pdf" class="model-btn">PDF</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="model-card">
+          <div class="model-header">
+            <div class="edition-dot e3">02</div>
+            <div class="model-title-wrap">
+              <div class="model-name">Sonneveld &amp; Voogt</div>
+              <div class="model-team">EC 스트레스 기반 수량 감소 모델</div>
+            </div>
+            <span class="model-tag badge-amber">경험 수식</span>
+          </div>
+          <div class="model-body">
+            <div class="model-desc">
+              슬라브 EC 와 상대 수량의 관계식. 본 농장의 EC 고당도 전략으로 인한 수량 손실을 정량화.
+              TOMGRO 결과에 곱 계수로 적용.
+            </div>
+            <div class="model-stats-row">
+              <div class="model-stat"><div class="l">+ TOMGRO 오차율</div><div class="v">34.1%</div></div>
+              <div class="model-stat"><div class="l">저온기 한겨울 상대수량</div><div class="v">0.731</div></div>
+            </div>
+            <div class="model-actions">
+              <a href="#" onclick="switchSub('models','sv',document.querySelector('#sub-nav-models .tab-btn:nth-child(3)')); return false;" class="model-btn primary">자세히 보기</a>
+              <a href="02_Sonneveld_Voogt/output/SV_tech_doc.pdf" class="model-btn">PDF</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="model-card">
+          <div class="model-header">
+            <div class="edition-dot e-ml">03</div>
+            <div class="model-title-wrap">
+              <div class="model-name">XGBoost</div>
+              <div class="model-team">잔차 학습 기반 오차 보정</div>
+            </div>
+            <span class="model-tag badge-red">머신러닝</span>
+          </div>
+          <div class="model-body">
+            <div class="model-desc">
+              36개 특성을 학습하여 TOMGRO·S&amp;V 가 놓친 잔차를 보정 데이터 부족에 따른 학습 한계 있음
+              (학습 오차율 5.4% vs CV 오차율 23.6%).
+            </div>
+            <div class="model-stats-row">
+              <div class="model-stat"><div class="l">+ 체인 오차율</div><div class="v">21.7%</div></div>
+              <div class="model-stat"><div class="l">학습 주차</div><div class="v">29주</div></div>
+            </div>
+            <div class="model-actions">
+              <a href="#" onclick="switchSub('models','xgboost',document.querySelector('#sub-nav-models .tab-btn:nth-child(4)')); return false;" class="model-btn primary">자세히 보기</a>
+              <a href="03_XGBoost/output/XGBoost_tech_doc.pdf" class="model-btn">PDF</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="model-card">
+          <div class="model-header">
+            <div class="edition-dot e4">04</div>
+            <div class="model-title-wrap">
+              <div class="model-name">DeePC</div>
+              <div class="model-team">데이터 기반 예측 제어</div>
+            </div>
+            <span class="model-tag badge-purple">제어 처방</span>
+          </div>
+          <div class="model-body">
+            <div class="model-desc">
+              Willems Lemma 와 Hankel matrix 를 이용한 모델 없는 제어. v8 본 농장 튜닝으로
+              3중 스크린 · 환기 급변 제약 등 반영.
+            </div>
+            <div class="model-stats-row">
+              <div class="model-stat"><div class="l">밴드 준수율</div><div class="v">100%</div></div>
+              <div class="model-stat"><div class="l">광합성 개선</div><div class="v">+4.7%</div></div>
+            </div>
+            <div class="model-actions">
+              <a href="#" onclick="switchSub('models','deepc',document.querySelector('#sub-nav-models .tab-btn:nth-child(5)')); return false;" class="model-btn primary">자세히 보기</a>
+              <a href="04_DeePC/output/DeePC_tech_doc.pdf" class="model-btn">PDF</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-block note-info">
+        <strong>설계 철학</strong><br>
+        물리 모델 (TOMGRO, S&amp;V) 이 기본 예측, ML (XGBoost) 이 잔차 보정, 제어 (DeePC) 가 환경 처방을 담당.
+        각 모델의 한계는 문서별로 투명 공개함
+      </div>
+    </div>
+  </div>
+
+  <!-- TOMGRO -->
+  <div id="sub-models-tomgro" class="sub-section">
+    <div class="container">
+      <div class="sl">MODEL 01 · PHYSICS-BASED</div>
+      <h1>TOMGRO — 광합성·건물 생산 모델</h1>
+      <p class="desc">
+        1991년 미국 Florida 대학교 Jones 교수팀이 개발한 토마토 생육-수확 시뮬레이션 모델. 네덜란드
+        Wageningen 대학의 Heuvelink (1996) 가 개선하여 현재 온실 농업 연구의 표준이 됨 본 프로젝트에서는
+        핵심 모듈인 광합성 계산부를 구현하여 1작기 실측 데이터에 적용함
+      </p>
+
+      <div class="sl">핵심 수치 (저온기 한겨울, 2025-11-06 ~ 11-12)</div>
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">LAI (엽면적지수)</div>
+          <div class="kpi-val">4.24</div>
+          <div class="kpi-note">엽장 36.3 × 엽폭 30.0 × 엽수 20.0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">주간 총광합성</div>
+          <div class="kpi-val">187<span class="kpi-unit">g CH₂O/m²</span></div>
+          <div class="kpi-note">7일 누적</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">예측 수확량</div>
+          <div class="kpi-val">0.402<span class="kpi-unit">kg/m²/주</span></div>
+          <div class="kpi-note">DAP 126일 기준</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">저온기 한겨울 오차율 (TOMGRO 단독)</div>
+          <div class="kpi-val">2.2<span class="kpi-unit">%</span></div>
+          <div class="kpi-note">실측 0.393 kg 대비</div>
+        </div>
+      </div>
+
+      <h2>Input / Output 구조</h2>
+      <p>
+        TOMGRO 광합성 함수는 <strong>4개 입력 → 1개 출력</strong> 구조. 모든 입력은 1시간 대표값이며, 원본 데이터를 전처리하여 생성함
+      </p>
+
+      <div class="sl">Input (4개)</div>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>변수</th><th>단위</th><th>원본 데이터</th><th>전처리</th><th>저온기 한겨울 값</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>PAR</strong></td><td class="num">μmol/m²/s</td><td>radiation (W/m²)</td><td>× 2.02 변환</td><td class="num">1404.37<br><span style="color:var(--text3); font-size:11px;">(11/10 12:00)</span></td></tr>
+              <tr><td><strong>CO2</strong></td><td class="num">ppm</td><td>meas CO2 conc</td><td>5분 → 1시간 평균</td><td class="num">431.27</td></tr>
+              <tr><td><strong>T_air</strong></td><td class="num">°C</td><td>meas grh temp</td><td>5분 → 1시간 평균</td><td class="num">26.00</td></tr>
+              <tr><td><strong>LAI</strong></td><td class="num">m² leaf / m² ground</td><td>엽장·엽폭·엽수 (주간 측정)</td><td>별도 공식 계산</td><td class="num">3.027</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sl">Output (주간 누적 기준)</div>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>변수</th><th>단위</th><th>의미</th><th>저온기 한겨울 값</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>주간 총광합성</td><td class="num">g CH₂O/m²/week</td><td>캐노피 7일 누적 탄소 고정량</td><td class="num">87.41</td></tr>
+              <tr><td>주간 유지호흡</td><td class="num">g CH₂O/m²/week</td><td>기존 조직 유지 비용</td><td class="num">~20</td></tr>
+              <tr><td>순 건물 생산</td><td class="num">g DM/m²/week</td><td>성장호흡 25% 차감 후</td><td class="num">44.70</td></tr>
+              <tr><td>과실 건물</td><td class="num">g DM/m²/week</td><td>63% 배분 (DAP 126 기준)</td><td class="num">28.13</td></tr>
+              <tr style="background: var(--e1-bg);"><td><strong>예측 수확량</strong></td><td class="num"><strong>kg/m²/week</strong></td><td><strong>최종 예측값 (과실 신선무게)</strong></td><td class="num"><strong>0.402</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h2>모델 구조 — 3단계 광합성 계산</h2>
+      <p>
+        TOMGRO 는 Lambert-Beer 빛 분포 → 잎 단위 광합성 (Farquhar 간소화) → 캐노피 전체 적분의
+        3단계 구조로 이론 건물 생산량을 계산함
+      </p>
+
+      <div class="formula-block">Step 1: Lambert-Beer 법칙 (캐노피 층별 빛 감쇠)
+  I(L) = I₀ · exp(−K_ext · L)
+  K_ext = 0.7 (토마토 실측 평균, Heuvelink 1996)
+
+Step 2: 잎 단위 광합성 (직각쌍곡선)
+  P_leaf = (α · PAR · P_max) / (α · PAR + P_max)
+  α = 0.05 mol CO₂ / mol 광자
+  P_max = 25 μmol CO₂/m²/s (기준, CO₂ 350ppm · 25°C)
+
+Step 3: 캐노피 전체 (5개 층 적분)
+  P_canopy = Σ P_leaf,i · ΔL_i
+  시간당 환산: × 3600 × 30 / 10⁶ = g CH₂O/m²/hr</div>
+
+      <h2>LAI 계산 방법 (Heuvelink 1995)</h2>
+      <p>
+        TOMGRO 의 핵심 입력 변수 LAI 는 원본 PRIVA 데이터에 없으므로 <strong>주간 생육 측정값</strong>에서 계산함
+      </p>
+
+      <div class="formula-block">LAI = (엽장 × 엽폭 × SHAPE) × 엽수 × 재식밀도
+
+  SHAPE = 0.5 (본 농장 기준 · 토마지노 품종 잎 형상 계수)
+  재식밀도 = 2.78 주/m² (본 농장 실측)
+
+저온기 한겨울 실제 계산:
+  L = 0.363 m, W = 0.300 m
+  잎 면적 = 0.363 × 0.300 × 0.5 = 0.0545 m²
+  주당 엽면적 = 0.0545 × 20.0 = 1.089 m²
+  LAI = 1.089 × 2.78 = 3.027 m²/m²</div>
+
+      <div class="note-block note-info">
+        <strong>SHAPE 계수 0.5 선택 근거</strong><br>
+        Heuvelink (1995) 논문은 일반 대형 토마토 기준으로 0.7 을 제시하나, 본 농장 <strong>토마지노 품종</strong> (방울토마토 계열) 은 잎 형상이 다름
+        재배사 실측 결과 잎 크기 대비 실제 엽면적 비율이 <strong>0.4~0.5</strong> 수준으로 확인됨
+        따라서 본 프로젝트는 <strong>SHAPE = 0.5</strong> 를 사용함 (방울토마토 실측 근거)
+      </div>
+
+      <div class="sl">40주 LAI 추이</div>
+      <div class="fig-wrap">
+        <img src="site_images/weekly_LAI_40weeks.png" alt="40주 LAI 추이">
+        <div class="fig-caption">
+          <strong>LAI 40주 추이.</strong> 초기(7~9월) LAI 1~3 급성장, 중기(10~11월) 최대 3~5, 겨울 저광기(12~2월) 2~3 감소, 말기(3~4월) 1~1.5 부근 종료 준비
+          3개 Scene 모두 TOMGRO 정상 운영 구간에 해당
+          <br>
+          ※ 이미지는 SHAPE 0.7 기준으로 생성되었으므로 표시 값을 × 0.714 로 환산하여 해석 필요 (Phase 2 재생성 예정)
+        </div>
+      </div>
+
+      <h2>저온기 한겨울 주간 실행 결과</h2>
+      <p>
+        2025-11-06 ~ 11-12, DAP 120~126일 구간. 7일간 환경 변화를 5분 간격으로 추적하여
+        주간 누적 광합성과 기관별 에너지 배분 (건물 배분) 을 계산함
+      </p>
+
+      <div class="sl">일별 환경 및 광합성 (내부 광량 기준)</div>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>날짜</th><th>요일</th><th>내부 DLI (mol/m²)</th><th>평균 기온</th><th>순 건물 (g DM/m²)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>11-06</td><td>목</td><td class="num">13.99</td><td class="num">21.42 °C</td><td class="num">8.31</td></tr>
+              <tr><td>11-07</td><td>금</td><td class="num">11.13</td><td class="num">21.45 °C</td><td class="num">6.65</td></tr>
+              <tr><td>11-08</td><td>토</td><td class="num">5.10</td><td class="num">20.65 °C</td><td class="num">2.44</td></tr>
+              <tr><td>11-09</td><td>일</td><td class="num">10.58</td><td class="num">20.75 °C</td><td class="num">5.99</td></tr>
+              <tr><td>11-10</td><td>월</td><td class="num">15.64</td><td class="num">20.86 °C</td><td class="num">9.34</td></tr>
+              <tr><td>11-11</td><td>화</td><td class="num">14.77</td><td class="num">21.43 °C</td><td class="num">8.78</td></tr>
+              <tr><td>11-12</td><td>수</td><td class="num">5.84</td><td class="num">20.37 °C</td><td class="num">3.19</td></tr>
+              <tr style="background: var(--e1-bg);"><td><strong>주간 합계</strong></td><td>—</td><td class="num"><strong>누적 77.04</strong></td><td class="num">—</td><td class="num"><strong>44.70</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sl">일별 광합성 추이 (저온기 한겨울)</div>
+      <div class="fig-wrap">
+        <img src="site_images/tomgro_scene1_day_viz.png" alt="저온기 한겨울 일별 광합성">
+        <div class="fig-caption">
+          <strong>11/12 하루 4단계 처리 결과.</strong> ① PAR 오전 7시 상승, 11시 피크 546 μmol/m²/s. ② CO₂는 주간 작물 소비로 감소. ③ 시간당 광합성 11시 피크 2.44 g/m²/hr, 야간은 음수(호흡만). ④ 하루 총 7.2 g DM/m² 누적.
+          <br><br>
+          <span style="color: var(--e2-text);"><strong>📊 값 구분 안내</strong></span>
+          — PAR · CO₂ · 기온 = <strong>실측값</strong> (PRIVA 센서 기록) · 광합성량 · 호흡량 · 건물 생산 = <strong>계산값</strong> (TOMGRO 수식으로 산출)
+          <strong>예측이 아니라 실측 환경에서 TOMGRO 수식을 적용한 결과</strong>
+        </div>
+      </div>
+
+      <div class="sl">주간 시뮬레이션 결과</div>
+      <div class="fig-wrap">
+        <img src="site_images/tomgro_scene1_week_viz.png" alt="저온기 한겨울 주간 결과">
+        <div class="fig-caption">
+          <strong>저온기 한겨울 주간 시뮬레이션.</strong> ① 일별 DLI 흐린 날 10~12 mol, 맑은 날 30 mol. ② 일별 건물 생산 배분 23/14/63% (잎/줄기/과실) 일관 유지. ③ 주간 누적 이론 과실량.
+          <br><br>
+          <span style="color: var(--e2-text);"><strong>📊 값 구분 안내</strong></span>
+          — DLI = <strong>실측 광량 적분</strong> · 건물 생산량·배분 = <strong>TOMGRO 계산값</strong>
+          최종 수확량 (0.402 kg) 은 <strong>8주 뒤 실제 수확 예측값</strong>
+        </div>
+      </div>
+
+      <h2>최종 예측값 계산 (저온기 한겨울)</h2>
+      <div class="formula-block">주간 총광합성: 87.41 g CH₂O/m²
+유지호흡: 시간별·기온별 실제 계산 (기온 높을수록 증가)
+
+순 건물: (총광합성 − 유지호흡) × (30/44) × 0.75
+      = 44.70 g DM/m²/week
+
+기관별 배분 (DAP 126, 생식생장 안정기):
+  잎   23% = 18.54 g DM/m²
+  줄기 14% = 11.29 g DM/m²
+  과실 63% = 28.13 g DM/m²
+
+예측 수확량 환산 (방울토마토 건물비 7%):
+  28.13 / 0.07 / 1000 = 0.402 kg/m²/week
+
+  ← TOMGRO 단독 예측 수확량 (실제 시뮬레이션 결과)</div>
+
+      <div class="note-block note-info">
+        <strong>기술 문서 (PDF) 의 수기 계산 예시와 차이 해설</strong><br>
+        PDF 문서 섹션 4.5 에는 유지호흡을 식물 건물량 250 g/m² 기준 단순화한 수기 예시가 있으나,
+        실제 시뮬레이션은 시간별·기온별 유지호흡을 정밀 계산하여 <strong>0.402 kg/m²</strong> 산출 프로젝트 전반 (통합검증·시각화) 에 사용된 값은 <strong>0.402 kg/m²</strong> 기준임
+      </div>
+
+      <h2>실측 비교와 오차율 해석</h2>
+
+      <div class="sl">예측 vs 실제 (저온기 한겨울, 8주 시차 적용)</div>
+      <div class="card">
+        <div class="card-body">
+          <div style="display: grid; grid-template-columns: 1fr 40px 1fr 1fr; gap: 12px; align-items: center;">
+            <!-- 예측값 -->
+            <div style="text-align: center; padding: 20px; background: var(--e1-bg); border-radius: var(--radius);">
+              <div style="font-size: 11px; color: var(--e1-text); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 8px;">TOMGRO 예측</div>
+              <div style="font-size: 28px; font-weight: 700; color: var(--e1-text); letter-spacing: -0.02em;">0.402</div>
+              <div style="font-size: 12px; color: var(--e1-text); margin-top: 4px;">kg/m²/week</div>
+              <div style="font-size: 11px; color: var(--text3); margin-top: 10px;">2025-11-06 ~ 11-12<br>환경 기준</div>
+            </div>
+
+            <!-- VS -->
+            <div style="text-align: center; font-size: 18px; color: var(--text3); font-weight: 700;">vs</div>
+
+            <!-- 실제값 -->
+            <div style="text-align: center; padding: 20px; background: var(--e2-bg); border-radius: var(--radius);">
+              <div style="font-size: 11px; color: var(--e2-text); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 8px;">실제 수확량</div>
+              <div style="font-size: 28px; font-weight: 700; color: var(--e2-text); letter-spacing: -0.02em;">0.393</div>
+              <div style="font-size: 12px; color: var(--e2-text); margin-top: 4px;">kg/m²/week</div>
+              <div style="font-size: 11px; color: var(--text3); margin-top: 10px;">2026-01-01 ~ 01-07<br>8주 뒤 수확</div>
+            </div>
+
+            <!-- 차이 -->
+            <div style="text-align: center; padding: 20px; background: var(--e2-bg); border-radius: var(--radius);">
+              <div style="font-size: 11px; color: var(--e2-text); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 8px;">차이</div>
+              <div style="font-size: 28px; font-weight: 700; color: var(--e2-text); letter-spacing: -0.02em;">+0.009</div>
+              <div style="font-size: 12px; color: var(--e2-text); margin-top: 4px;">kg/m²/week 미세 과대</div>
+              <div style="font-size: 11px; color: var(--text3); margin-top: 10px;">오차율 2.2%<br>(절대오차 ÷ 실측)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sl">실제 수확량 계산 근거</div>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>기간</th><th>수확 일자</th><th>수확량 (동 전체)</th><th>환산</th></tr>
+            </thead>
+            <tbody>
+              <tr><td rowspan="3">2026-01-01 ~ 01-07</td><td class="num">01-02</td><td class="num">169.9 kg</td><td rowspan="3">826.5 m² 로 나눔</td></tr>
+              <tr><td class="num">01-05</td><td class="num">155.1 kg</td></tr>
+              <tr style="background: var(--surface2);"><td class="num"><strong>합계</strong></td><td class="num"><strong>325.0 kg</strong></td></tr>
+              <tr style="background: var(--e2-bg);"><td colspan="3"><strong>→ 실제 수확량</strong></td><td class="num"><strong>0.393 kg/m²/week</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="note-block note-info">
+        <strong>8주 시차 (LAG) 적용 이유</strong><br>
+        방울토마토는 개화 → 수정·착과 → 과실 비대 → 착색·성숙 전 과정이 약 <strong>8주</strong> 소요.
+        따라서 11월 첫째 주 광합성 기반 예측은 8주 뒤 (2026-01 첫째 주) 수확과 비교함
+      </div>
+
+      <h2>오차율 2.2% 의 해석 (저온기 한겨울, TOMGRO 단독)</h2>
+      <div class="note-block note-tip">
+        <strong>✅ 저온기 한겨울 (TOMGRO 단독) 오차율 2.2% — 예측이 실측과 거의 일치</strong><br>
+        저온기 한겨울 주차의 TOMGRO 예측 수확량 <strong>0.402 kg/m²</strong> 이 실측 <strong>0.393 kg/m²</strong> 과 매우 근접함
+        이는 내부 광량과 본 농장 SHAPE 0.5 기준으로 광합성·건물 분배 수식이 저온기·안정 생장기 조건에서 정확히 작동함을 의미
+        <br><br>
+        단, 전 작기 평균 오차율은 25.6% 로 주차별 편차 존재 → S&amp;V 와 XGBoost 단계를 거쳐 최종 <strong>21.7%</strong> 달성
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>누락 요소</th><th>예상 영향</th><th>담당 모델</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>근권 EC 스트레스</td><td class="num">−10~20%</td><td>Sonneveld &amp; Voogt</td></tr>
+              <tr><td>솎기 (적과)</td><td class="num">−1~3%</td><td>농작업 부록</td></tr>
+              <tr><td>폐기과·크기 미달</td><td class="num">−10~20%</td><td>XGBoost 잔차 학습</td></tr>
+              <tr><td>잎 노화 손실</td><td class="num">−5%</td><td>주기별 배분 조정</td></tr>
+              <tr><td>재배사 의사결정</td><td class="num">±10%</td><td>학습 어려움</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h2>외부 vs 내부 광량 검증</h2>
+      <p>
+        현재 TOMGRO 에 입력되는 PAR 은 PRIVA 의 <strong>외부 일사 센서</strong> 값을 × 2.02 변환한 것
+        하지만 실제 작물이 받는 빛은 유리·3중 스크린·구조물을 통과한 <strong>내부 광량</strong>임
+        본 프로젝트는 별도의 내부 광 센서 (M102N1R6.1V2) 데이터를 확보하여 두 값을 비교 분석함
+      </p>
+
+      <div class="sl">저온기 한겨울 주간 외부 vs 내부 광량 추이</div>
+      <div class="fig-wrap">
+        <img src="site_images/light_comparison_scene1.png" alt="저온기 한겨울 외부 vs 내부 광량 비교">
+        <div class="fig-caption">
+          <strong>저온기 한겨울 (2025-11-06 ~ 11-12) 외부 vs 내부 일사량.</strong>
+          외부 피크 약 700 W/m² 에 비해 내부는 약 170~200 W/m² 로 감소
+          주간 평균 투과율 <strong>21.9%</strong> 로 약 78% 의 광량 손실 발생
+          (3중 스크린 + 유리/필름 투과 + 구조물 그림자 종합 영향)
+        </div>
+      </div>
+
+      <div class="sl">전 작기 월별 투과율 패턴</div>
+      <div class="fig-wrap">
+        <img src="site_images/light_comparison_monthly.png" alt="월별 DLI 및 투과율">
+        <div class="fig-caption">
+          <strong>월별 외부 DLI vs 내부 DLI 및 투과율 추이.</strong>
+          여름 (6~9월) 24~28%, 겨울 (11~1월) 19~21%, 초봄 (3~4월) 29~31% 로 계절별 변동
+          작기 평균 투과율 <strong>24.8%</strong> 겨울 고당도 전략 기간 스크린 사용 증가로 투과율 하락 관측
+        </div>
+      </div>
+
+      <div class="sl">광량 보정 민감도 분석</div>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>광량 입력 가정</th><th>TOMGRO 단독 오차율</th><th>전 작기 예측 누적</th><th>실측 대비</th></tr>
+            </thead>
+            <tbody>
+              <tr><td style="color: var(--text3);">외부 광량 그대로 사용</td><td class="num" style="color: var(--text3);">86.0%</td><td class="num" style="color: var(--text3);">25.1 kg/m²</td><td class="num" style="color: var(--tag-rl);">+121% 과대</td></tr>
+              <tr><td style="color: var(--text3);">내부 센서 그대로 사용</td><td class="num" style="color: var(--text3);">64.0%</td><td class="num" style="color: var(--text3);">6.3 kg/m²</td><td class="num" style="color: var(--tag-rl);">−45% 과소</td></tr>
+              <tr style="background: var(--e2-bg);"><td><strong>투과율 50% 적용 (Phase 1.5 기준)</strong></td><td class="num"><strong>25.6%</strong></td><td class="num"><strong>9.6 kg/m²</strong></td><td class="num"><strong>−10% 근접</strong></td></tr>
+              <tr><td style="color: var(--text3);">실측 (참고)</td><td class="num">—</td><td class="num">11.4 kg/m²</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="note-block note-tip">
+        <strong>✅ 광량 입력 선정 근거</strong><br>
+        외부 광량·내부 센서 단독 사용은 모두 큰 오차 발생. 데이터 탐색 결과 <strong>투과율 50%</strong> 가 실측과 가장 근접
+        본 농장은 3중 스크린 + 유리/필름 구조이므로 외부 광량의 약 절반이 캐노피에 도달하는 것이 합리적
+      </div>
+
+      <div class="note-block note-warn">
+        <strong>⚠️ 외부 vs 내부 광량 차이 — 실제 PAR 측정 필요</strong><br>
+        외부 광량과 내부 광량의 차이가 <strong>약 78% (투과율 22%)</strong> 로 매우 큼
+        본 Phase 1 에서는 데이터 최적화로 투과율 50% 가 적합함을 찾았으나, 이는 <strong>실측값이 아닌 추정값</strong>임
+        <br><br>
+        <strong>Phase 2 필수 작업:</strong>
+        <br>· 캐노피 상단 레벨에 <strong>PAR 센서 (μmol/m²/s 직접 측정)</strong> 추가 설치 필요
+        <br>· 스크린 구간별로 센서 배치하여 투과율 공간 분포 파악
+        <br>· 동적 투과율 모델 구축 (스크린 개도 · 시간 · 태양 고도에 따른 변동)
+      </div>
+
+      <h2>파라미터 조정 이력</h2>
+      <p>원본 수식·파라미터는 <strong>전혀 건드리지 않음</strong>. 다만 본 농장 특성에 맞춰 1가지 환산 계수만 조정:</p>
+
+      <div class="note-block note-alert">
+        <strong>⚠️ 조정 사항: 과실 건물 비율 (Dry Matter Content)</strong><br>
+        일반 대형 토마토 0.06 (6%) → <strong>방울토마토 0.07 (7%)</strong> (Adams 1990, Wu &amp; Kubota 2008).
+        방울토마토는 당도가 높아 건물 함량이 큼. 이로 인해 같은 건물에서 환산된 수확량이 일반 토마토 기준보다 약 14% 적게 나옴 (더 보수적).
+      </div>
+
+      <div class="pdf-link-box">
+        <div>
+          <div class="pdf-link-title">TOMGRO 전체 기술 문서</div>
+          <div class="pdf-link-desc">모든 수식·파라미터·계산 예시 상세 · 약 17쪽</div>
+        </div>
+        <div class="pdf-link-actions">
+          <a href="01_TOMGRO/output/TOMGRO_tech_doc.pdf" class="model-btn primary">PDF</a>
+          <a href="01_TOMGRO/output/TOMGRO_tech_doc.docx" class="model-btn">Word</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S&V -->
+  <div id="sub-models-sv" class="sub-section">
+    <div class="container">
+      <div class="sl">MODEL 02 · EMPIRICAL FORMULA</div>
+      <h1>Sonneveld &amp; Voogt — EC 스트레스 수량 감소</h1>
+      <p class="desc">
+        네덜란드 Wageningen 대학과 IMAG 의 공동 연구로 1980년대부터 축적된 근권 EC 스트레스에 의한 작물 수량 감소 정량화 모델.
+        Sonneveld &amp; Voogt (2009) 가 종합 정리하여 현재 FAO 의 온실 작물 염류 스트레스 평가 국제 표준. 본 농장처럼
+        고당도 재배 전략을 쓰는 곳은 EC 를 의도적으로 높게 운영하므로 S&amp;V 손실 평가가 특히 중요함
+      </p>
+
+      <div class="sl">핵심 수치 (저온기 한겨울 기준)</div>
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">슬라브 EC (주간 평균)</div>
+          <div class="kpi-val">5.56<span class="kpi-unit">dS/m</span></div>
+          <div class="kpi-note">임계 2.5 초과</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">상대 수량 Y_r</div>
+          <div class="kpi-val">0.860</div>
+          <div class="kpi-note">14.0% 손실</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">TOMGRO × S&amp;V</div>
+          <div class="kpi-val">0.214<span class="kpi-unit">kg/m²</span></div>
+          <div class="kpi-note">0.402 × 0.533</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">+ TOMGRO 오차율</div>
+          <div class="kpi-val">34.1<span class="kpi-unit">%</span></div>
+          <div class="kpi-note">수확 7주 전 EC 기준 (착과기)</div>
+        </div>
+      </div>
+
+      <h2>Input / Output 구조</h2>
+      <p>
+        S&amp;V 는 <strong>가장 단순한 구조 — 1개 입력 → 1개 출력</strong>. 슬라브 EC 값만으로 상대 수량을 계산함
+      </p>
+
+      <div class="sl">Input (1개)</div>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>변수</th><th>단위</th><th>원본 데이터</th><th>전처리</th><th>저온기 한겨울 값</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>슬라브 EC</strong></td><td class="num">dS/m</td><td>슬라브 EC (mS/cm)</td><td>주간 평균</td><td class="num">5.56</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sl">Output (1개)</div>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>변수</th><th>단위</th><th>의미</th><th>저온기 한겨울 값</th></tr>
+            </thead>
+            <tbody>
+              <tr style="background: var(--e3-bg);"><td><strong>상대 수량 Y_r</strong></td><td class="num">비율 (0~1)</td><td><strong>TOMGRO 예측에 곱할 계수 (1 = 손실 없음)</strong></td><td class="num"><strong>0.860</strong></td></tr>
+              <tr><td>손실률</td><td class="num">%</td><td>1 − Y_r</td><td class="num">14.0%</td></tr>
+              <tr><td>TOMGRO × S&amp;V</td><td class="num">kg/m²/week</td><td>0.402 × 0.533</td><td class="num">0.214</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="note-block note-info">
+        <strong>참고 — 사용하지 않은 EC 지점 2종</strong><br>
+        본 농장은 공급 EC (2.84) · 배액 EC (6.83) 도 측정하지만, 식물이 실제 흡수하는 슬라브 EC (5.56) 만 입력으로 사용함
+        FAO 표준 및 Sonneveld &amp; Voogt (2009) 준수.
+      </div>
+
+      <h2>모델 구조 — 선형 EC 손실 수식</h2>
+      <p>
+        Maas &amp; Hoffman (1977) 의 고전 선형 모델을 방울토마토에 맞춰 적용. 슬라브 EC 가 임계값을 넘으면
+        초과량에 비례해 수량이 선형적으로 감소함
+      </p>
+
+      <div class="formula-block">Y_r = 1 − b · (EC_slab − EC_threshold)
+
+파라미터 (방울토마토 기준):
+  EC_threshold = 2.5 dS/m (임계 EC)
+  b = 0.045 /dS/m (손실 계수, 초과 EC 1 dS/m 당 4.5% 감소)
+
+저온기 한겨울 계산:
+  EC_slab = 5.56 dS/m
+  Y_r = 1 − 0.045 × (5.56 − 2.5)
+      = 1 − 0.045 × 3.06
+      = 1 − 0.138
+      = 0.862 ≈ 0.860 (평균값 기준)</div>
+
+      <h2>세 가지 EC 중 슬라브 EC 선택 이유</h2>
+      <p>
+        본 농장에는 EC 측정 지점이 3곳 있으나, 식물이 <strong>실제 흡수하는</strong> 근권 EC 를 사용함
+      </p>
+
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>EC 종류</th><th>측정 위치</th><th>저온기 한겨울 평균</th><th>역할</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>공급 EC</td><td>양액기 공급 라인</td><td class="num">2.84 dS/m</td><td>시설이 본 값</td></tr>
+              <tr style="background: var(--e3-bg);"><td><strong>슬라브 EC</strong></td><td>근권 (슬라브 내부)</td><td class="num"><strong>5.56 dS/m</strong></td><td><strong>S&amp;V 입력</strong></td></tr>
+              <tr><td>배액 EC</td><td>배액 라인</td><td class="num">6.83 dS/m</td><td>뿌리 통과 후 농축</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="note-block note-info">
+        <strong>왜 공급 → 슬라브 → 배액 순으로 EC 가 증가하는가?</strong><br>
+        온실 재배에서 식물은 물만 선택적으로 흡수하고 염류는 남기므로, 공급 → 슬라브 → 배액 순서로 EC 가 농축됨
+        본 농장의 2.84 → 5.56 → 6.83 dS/m 패턴은 정상 관수·배액 시스템의 전형적 모습임
+      </div>
+
+      <h2>저온기 한겨울 주간 EC 변화</h2>
+      <div class="fig-wrap">
+        <img src="site_images/sv_scene1_ec_week.png" alt="저온기 한겨울 주간 EC 변화">
+        <div class="fig-caption">
+          <strong>저온기 한겨울 주간 슬라브 EC 추이.</strong> 주간 평균 5.56 dS/m, 임계 EC 2.5 를 지속적으로 초과. 고당도 전략으로 의도적으로 높게 유지된 수치.
+        </div>
+      </div>
+
+      <h2>S&amp;V 손실 곡선</h2>
+      <div class="fig-wrap">
+        <img src="site_images/sv_curve_comparison.png" alt="S&V 손실 곡선">
+        <div class="fig-caption">
+          <strong>슬라브 EC → 상대 수량 관계.</strong> 임계 EC 2.5 dS/m 에서 Y_r=1.0 시작, 선형적으로 감소.
+          방울토마토는 염류 내성이 중간 작물이며 본 농장의 평균 슬라브 EC 5.16 dS/m 에서 약 12% 손실.
+        </div>
+      </div>
+
+      <h2>월별 EC 손실 패턴</h2>
+      <div class="fig-wrap">
+        <img src="site_images/sv_monthly_ec_loss.png" alt="월별 EC 손실">
+        <div class="fig-caption">
+          <strong>전 작기 월별 평균 슬라브 EC 와 상대 수량.</strong> 11월~2월 고당도 전략 구간에서 EC 5~6 dS/m 유지, 해당 기간 S&amp;V 손실 최대 15~20% 수준.
+        </div>
+      </div>
+
+      <h2>결과 해석</h2>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>체인 단계</th><th>저온기 한겨울 예측</th><th>누적 오차율</th><th>이전 대비</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>TOMGRO 단독</td><td class="num">0.402 kg/m²</td><td class="num">25.6%</td><td>—</td></tr>
+              <tr style="background: var(--e3-bg);"><td><strong>+ S&amp;V 적용</strong></td><td class="num"><strong>0.293 kg/m²</strong></td><td class="num"><strong>34.1%</strong></td><td class="num" style="color: var(--tag-rl);">+8.5%p ⚠️</td></tr>
+              <tr style="background: var(--e2-bg);"><td><strong>+ XGBoost CV</strong></td><td class="num"><strong>0.378 kg/m²</strong></td><td class="num"><strong>21.7%</strong></td><td class="num" style="color: var(--e2-text);">−12.4%p ✓</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="note-block note-tip">
+        <strong>✅ S&amp;V 시차 발견 — Phase 1.5 핵심 업데이트</strong><br>
+        재배사 피드백에서 출발한 EC 심층 분석 결과, 본 농장 방울토마토는 
+        <strong>수확 7주 전 (착과기) EC</strong> 가 과실 크기를 결정함이 데이터로 확인됨
+        <br><br>
+        <strong>Phase 1 → Phase 1.5 변경</strong><br>
+        · 기존 (Phase 1): 수확 1주 전 EC (착색기) — WMAPE 25.2%<br>
+        · 현재 (Phase 1.5): <strong>수확 7주 전 EC (착과기)</strong> — WMAPE <strong>21.7%</strong><br>
+        · 개선 폭: <strong>−3.5%p</strong>
+        <br><br>
+        <strong>생리학적 의미</strong><br>
+        · 착과기 (수확 7주 전): 세포 분열 단계 → <strong>과실 크기 결정</strong> (수확량)<br>
+        · 과실 비대기 (수확 2~5주 전): 이미 정해진 세포 수로 비대<br>
+        · 착색기 (수확 1주 전): 당도 집적 (품질, Phase 2 브릭스 예측 대상)
+      </div>
+
+      <div class="note-block note-warn">
+        <strong>⚠️ S&amp;V 단독 단계가 오차율 증가시키는 이유</strong><br>
+        TOMGRO 단독 25.6% → + S&amp;V 34.1% (+8.5%p 악화)<br>
+        이는 저온기 한겨울 사례가 보여주듯 본 농장 특수성:<br>
+        · 저온기 한겨울 TOMGRO 단독 예측 0.402 kg → 실측 0.393 kg 과 거의 일치<br>
+        · 여기에 S&amp;V (착과기 EC 5.49, yield 0.731) 곱하면 0.293 kg 로 과소 예측<br>
+        · 이후 XGBoost 가 잔차 학습으로 0.378 kg 까지 복구<br>
+        <br>
+        Phase 2 에서 <strong>TOMGRO 이상 LAI 추정 + S&amp;V 수분·건물 분리 모델</strong> 로 구조적 개선 예정
+      </div>
+
+      <div class="pdf-link-box">
+        <div>
+          <div class="pdf-link-title">S&amp;V 전체 기술 문서</div>
+          <div class="pdf-link-desc">수식 유도 · 품종별 파라미터 · Adams Brix 연계 · 약 10쪽</div>
+        </div>
+        <div class="pdf-link-actions">
+          <a href="02_Sonneveld_Voogt/output/SV_tech_doc.pdf" class="model-btn primary">PDF</a>
+          <a href="02_Sonneveld_Voogt/output/SV_tech_doc.docx" class="model-btn">Word</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- XGBoost -->
+  <div id="sub-models-xgboost" class="sub-section">
+    <div class="container">
+      <div class="sl">MODEL 03 · MACHINE LEARNING</div>
+      <h1>XGBoost — 잔차 학습 보정</h1>
+      <p class="desc">
+        Chen &amp; Guestrin (2016) 의 Gradient Boosting 기반 결정 트리 앙상블. 본 프로젝트에서는 TOMGRO·S&amp;V
+        물리 모델이 놓친 잔차를 학습하여 최종 수확량 예측을 보정함 36개 특성을 기반으로 하며 데이터 부족에 따른 학습 한계를 함께 공개
+      </p>
+
+      <div class="sl">핵심 수치</div>
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">학습 오차율</div>
+          <div class="kpi-val">5.4<span class="kpi-unit">%</span></div>
+          <div class="kpi-note">⚠️ 데이터 부족 신호</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">CV 오차율 (5-fold)</div>
+          <div class="kpi-val">21.7<span class="kpi-unit">%</span></div>
+          <div class="kpi-note">Phase 1.5 (착과기 기준)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">+ 체인 오차율</div>
+          <div class="kpi-val">21.7<span class="kpi-unit">%</span></div>
+          <div class="kpi-note">−12.4%p vs S&amp;V 단계</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">학습 주차</div>
+          <div class="kpi-val">29<span class="kpi-unit">주</span></div>
+          <div class="kpi-note">1작기 데이터만</div>
+        </div>
+      </div>
+
+      <h2>Input / Output 구조</h2>
+      <p>
+        XGBoost 는 <strong>36개 입력 특성 → 1개 출력 (8주 후 실측 수확량)</strong>. 환경 · 생육 · EC · 물리 모델 출력 · 시간 · Lag 등 다양한 소스 통합.
+      </p>
+
+      <div class="sl">Input — 36개 특성 (8개 카테고리)</div>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>카테고리</th><th>개수</th><th>특성 목록</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>환경</strong></td>
+                <td class="num">9</td>
+                <td>temp_mean, temp_day, temp_night, DIF, CO2_day, DLI, VPD, outside_temp, rad_max</td>
+              </tr>
+              <tr>
+                <td><strong>생육</strong></td>
+                <td class="num">5</td>
+                <td>LAI, stem_thick, leaf_length, leaf_width, n_leaves</td>
+              </tr>
+              <tr>
+                <td><strong>화방·과실</strong></td>
+                <td class="num">5</td>
+                <td>flowering, fruit_set, harvested_c, total_fruits, stem_growth</td>
+              </tr>
+              <tr>
+                <td><strong>EC</strong></td>
+                <td class="num">3</td>
+                <td>slab_ec_mean, slab_ec_max, slab_ec_std</td>
+              </tr>
+              <tr>
+                <td><strong>TOMGRO 출력</strong></td>
+                <td class="num">4</td>
+                <td>tomgro_DM, tomgro_fruit_DM, tomgro_fruit_FW, tomgro_DLI</td>
+              </tr>
+              <tr>
+                <td><strong>S&amp;V 출력</strong></td>
+                <td class="num">2</td>
+                <td>sv_relative_yield, sv_loss_pct</td>
+              </tr>
+              <tr>
+                <td><strong>시간</strong></td>
+                <td class="num">1</td>
+                <td>DAP (정식 후 경과일)</td>
+              </tr>
+              <tr>
+                <td><strong>Lag 특성</strong></td>
+                <td class="num">7</td>
+                <td>DLI_lag1/4, tomgro_fruit_DM_lag1/4, slab_ec_mean_lag1/4, LAI_lag1/4</td>
+              </tr>
+              <tr style="background: var(--surface2);">
+                <td><strong>합계</strong></td>
+                <td class="num"><strong>36</strong></td>
+                <td>주간 단위 집계</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="note-block note-info">
+        <strong>Lag 특성이 필요한 이유</strong><br>
+        방울토마토는 꽃이 피고 수확까지 약 8주 소요. "이번 주 환경 → 다음 주 수확" 이 아니라 "몇 주 전 환경 → 이번 주 수확" 의 시차 구조를 반영하기 위해 1주·4주 전 값을 포함
+      </div>
+
+      <div class="sl">Output (1개)</div>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>변수</th><th>단위</th><th>의미</th><th>시차</th></tr>
+            </thead>
+            <tbody>
+              <tr style="background: var(--tag-rl-bg);">
+                <td><strong>target_yield</strong></td>
+                <td class="num"><strong>kg/m²/week</strong></td>
+                <td><strong>W+8주 실측 수확량</strong></td>
+                <td class="num">+8주 시차</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="formula-block">LAG_WEEKS = 8
+for week_end in features.index:
+    target_week = week_end + pd.Timedelta(weeks=8)
+    target = harvest.loc[target_week, 'harvest_kg_m2'].sum()
+
+# W 주의 환경·생육 특성으로 W+8 주의 실제 수확량 예측</div>
+
+      <h2>모델 구조와 특성</h2>
+      <div class="formula-block">XGBoost Regressor
+  objective: reg:squarederror
+  n_estimators: 100
+  max_depth: 5
+  learning_rate: 0.1
+  min_child_weight: 3
+  subsample: 0.8
+  colsample_bytree: 0.8
+
+특성 수: 36개
+  - 환경 (온도·CO₂·일사·습도): 12개
+  - 생육 (LAI·엽수·화방): 8개
+  - 관수 (EC·pH·수분): 6개
+  - 시간 (DAP·계절·요일): 4개
+  - 파생 (DLI·DIF·VPD): 6개</div>
+
+      <h2>교차 검증 결과 (TimeSeriesSplit 5-fold)</h2>
+      <div class="fig-wrap">
+        <img src="site_images/xgb_fold_mape.png" alt="Fold별 MAPE">
+        <div class="fig-caption">
+          <strong>Fold별 오차율 편차.</strong> Fold 1 54.9% (초기 정식기, 학습 데이터 부족), Fold 2~5 6.6~24% 변동.
+          전체 CV 오차율 23.6% (±20.1) 는 시기별 안정성이 낮음을 의미.
+        </div>
+      </div>
+
+      <div class="note-block note-warn">
+        <strong>데이터 부족에 따른 학습 한계 (과적합 의심)</strong><br>
+        학습 오차율 5.4% vs CV 오차율 23.6% 차이는 <strong>18.2%p</strong>. 이는 모델이 학습 데이터의 노이즈까지 기억했을 가능성.
+        Fold별 편차 6.6~54.9% 범위도 시기별로 일반화 성능이 크게 다름을 시사.
+      </div>
+
+      <h2>예측 vs 실제</h2>
+      <div class="fig-wrap">
+        <img src="site_images/xgb_pred_vs_actual.png" alt="예측 vs 실제">
+        <div class="fig-caption">
+          <strong>29주 학습 데이터 기준 예측 vs 실제.</strong> 학습 기준 오차율 5.4% 는 거의 완벽해 보이나,
+          CV 결과 23.6% 가 더 현실적인 실제 적용 성능.
+        </div>
+      </div>
+
+      <h2>특성 중요도 Top 10</h2>
+      <div class="fig-wrap">
+        <img src="site_images/xgb_feature_importance.png" alt="특성 중요도">
+        <div class="fig-caption">
+          <strong>가장 영향력 있는 특성 Top 10.</strong> DLI (일 누적 광), 주차, LAI, 평균 기온, 슬라브 EC 순.
+          물리 모델이 이미 사용하는 변수가 상위 → XGBoost 가 물리 모델과 유사한 인식 구조 학습.
+        </div>
+      </div>
+
+      <div class="note-block note-info">
+        <strong>💡 "특성 중요도" 해석 시 주의</strong><br>
+        이 그래프는 <strong>XGBoost 가 수확량 예측에 각 변수를 얼마나 활용했는가</strong> 를 보여줌
+        "잔차를 얼마나 기여했는가" 가 아님 <strong>수확량 전체 예측</strong> 에서의 변수별 기여도
+        <br><br>
+        예) LAI 가 상위에 나오는 이유: TOMGRO 가 이미 LAI 를 광합성 계산에 반영했지만, XGBoost 는 LAI 값 자체도
+        추가 입력으로 받아 "LAI 4 인 주차는 수확량 높음" 같은 별도 패턴까지 학습함
+        <br>
+        → 물리 모델 계산 + ML 패턴 학습의 <strong>이중 활용 구조</strong>
+      </div>
+
+      <h2>한계와 개선 방향</h2>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>한계</th><th>원인</th><th>개선 방향</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>데이터 부족 (과적합 경향)</td><td>학습 데이터 29주만 · 극단값 풍부도 낮음</td><td>2~3작기 누적 후 재학습</td></tr>
+              <tr><td>Fold별 편차 큼</td><td>초기 정식기 · 환절기 샘플 부족</td><td>계절별 균등 샘플링</td></tr>
+              <tr><td>예측 가능 범위 제한</td><td>학습 데이터 밖 시기 (2026-03~04) 예측 불가</td><td>다작기 학습 범위 확장</td></tr>
+              <tr><td>방향 일치율 낮음</td><td>잔차 학습 특성상 추세 포착 약함</td><td>물리 모델과 앙상블 유지</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="note-block note-alert">
+        <strong>현재 단계 평가: 실무 예측 사용 시 주의.</strong><br>
+        학습 오차율 5.4% 를 그대로 실무에 적용 금지. CV 오차율 23.6% (±20.1) 가 현실적 기대치이며,
+        특성 중요도 분석을 통한 인사이트 도출에 주로 활용. Phase 2 에서 2작기 데이터로 재학습 후 재평가 예정.
+      </div>
+
+      <div class="pdf-link-box">
+        <div>
+          <div class="pdf-link-title">XGBoost 전체 기술 문서</div>
+          <div class="pdf-link-desc">하이퍼파라미터 · 특성 엔지니어링 · 교차 검증 상세 · 약 18쪽</div>
+        </div>
+        <div class="pdf-link-actions">
+          <a href="03_XGBoost/output/XGBoost_tech_doc.pdf" class="model-btn primary">PDF</a>
+          <a href="03_XGBoost/output/XGBoost_tech_doc.docx" class="model-btn">Word</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DeePC -->
+  <div id="sub-models-deepc" class="sub-section">
+    <div class="container">
+      <div class="sl">MODEL 04 · DATA-DRIVEN CONTROL</div>
+      <h1>DeePC — 데이터 기반 예측 제어</h1>
+      <p class="desc">
+        Coulson et al. (2019) 의 Data-enabled Predictive Control. Willems' Fundamental Lemma 와 Hankel matrix 를
+        이용해 시스템 모델 없이 과거 데이터만으로 최적 제어 액션을 처방. 본 프로젝트에서는 v7 파일럿 → v8 본 농장 튜닝을 거쳐
+        3중 스크린 · 환기 급변 제약 등을 반영하고, 시간 패턴 학습 한계를 정직하게 공개.
+      </p>
+
+      <div class="sl">핵심 수치 (v8 · 저온기 한겨울 96시간)</div>
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">밴드 준수율</div>
+          <div class="kpi-val">100<span class="kpi-unit">%</span></div>
+          <div class="kpi-note">실제 운영 14%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">환기 최대 변화</div>
+          <div class="kpi-val">2.28<span class="kpi-unit">%/15분</span></div>
+          <div class="kpi-note">제약 ±5% 내</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">광합성 개선</div>
+          <div class="kpi-val">+4.7<span class="kpi-unit">%</span></div>
+          <div class="kpi-note">v8 vs 실제 운영</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">OSQP 수렴</div>
+          <div class="kpi-val">147.5<span class="kpi-unit">초</span></div>
+          <div class="kpi-note">96시간 최적화</div>
+        </div>
+      </div>
+
+      <h2>Input / Output 구조</h2>
+      <p>
+        DeePC 는 앞 3개 모델과 다른 구조 <strong>변수를 제어(u) · 외란(w) · 출력(y) 3종으로 구분</strong>하며,
+        과거 궤적 데이터에서 Hankel matrix 를 구성해 미래 최적 제어 액션을 처방함
+      </p>
+
+      <div class="note-block note-info">
+        <strong>💡 전체 흐름 이해 — "목표 수확량"부터 환경 제어까지</strong><br>
+        DeePC 는 단독으로 작동하지 않음 아래 3단계 흐름으로 TOMGRO 와 연결됨<br><br>
+
+        <strong>① 목표 설정 (재배사 / TOMGRO)</strong><br>
+        · 재배사가 "주당 0.7 kg/m² 수확량 달성"을 목표로 설정<br>
+        · TOMGRO 가 현재 환경 (광·CO₂·온도·LAI) 으로 "이론 최대 0.402 kg/m² 가능" 계산<br>
+        · 달성을 위한 <strong>최적 환경 조건</strong> (예: 기온 23°C, CO₂ 800 ppm) 역산<br><br>
+
+        <strong>② 환경 목표 전달 (TOMGRO → DeePC)</strong><br>
+        · TOMGRO 의 역산 결과 (최적 기온·CO₂·습도 목표치) 를 DeePC 에 전달<br><br>
+
+        <strong>③ 제어 변수 처방 (DeePC)</strong><br>
+        · DeePC 가 "그 환경을 만들려면 창문 몇 % · 스크린 몇 % · 난방 몇 °C 가 필요한가?" 역산<br>
+        · 재배사가 이 값으로 설비 조정 (또는 PRIVA 연동 자동 제어)<br><br>
+
+        <strong>⚠️ 현재 한계:</strong> ①번 역산 로직 (목표 수확량 → 최적 환경) 미구현 상태
+        현재는 DeePC 가 과거 데이터 기반으로 "그 시점에 최적이었을 환경" 을 역산만 하며, 
+        "재배사가 원하는 목표 수확량" 입력은 Phase 2 에서 추가 예정
+      </div>
+
+      <div class="sl">Control (u) — 제어 변수 6개 (v8 기준)</div>
+      <p style="font-size: 12px; color: var(--text3); margin-bottom: 8px;">
+        재배사가 조정할 수 있는 변수. DeePC 가 매 스텝마다 최적값을 처방.
+      </p>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>변수</th><th>의미</th><th>단위</th><th>v7</th><th>v8</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>meas_lee</td><td>lee side 천창 개도</td><td class="num">%</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+              <tr><td>meas_wind</td><td>wind side 천창 개도</td><td class="num">%</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+              <tr><td>meas_curtain_1</td><td>스크린 1 (에너지, 70% 차광 · 83% 보온)</td><td class="num">%</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+              <tr style="background: var(--e4-bg);"><td><strong>meas_curtain_2</strong></td><td><strong>스크린 2 (차광 50% · 보온 50%)</strong></td><td class="num">%</td><td style="text-align:center;">❌</td><td style="text-align:center;"><strong>✅ 신규</strong></td></tr>
+              <tr style="background: var(--e4-bg);"><td><strong>meas_curtain_3</strong></td><td><strong>스크린 3 (차광 30%)</strong></td><td class="num">%</td><td style="text-align:center;">❌</td><td style="text-align:center;"><strong>✅ 신규</strong></td></tr>
+              <tr><td>meas_wt_1</td><td>난방 파이프 온도</td><td class="num">°C</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sl">Disturbance (w) — 외란 변수 3개</div>
+      <p style="font-size: 12px; color: var(--text3); margin-bottom: 8px;">
+        제어 불가능. 예보·관측으로 알려져 있지만 조정 불가.
+      </p>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>변수</th><th>의미</th><th>단위</th><th>데이터 소스</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>outside_temp</td><td>외기 기온</td><td class="num">°C</td><td>PRIVA 외기 센서</td></tr>
+              <tr><td>radiation</td><td>외부 일사</td><td class="num">W/m²</td><td>PRIVA 일사계</td></tr>
+              <tr><td>LAI</td><td>엽면적 지수</td><td class="num">m²/m²</td><td>주간 측정 → 일별 보간</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sl">Output (y) — 출력 변수 3개 (최적화 대상)</div>
+      <p style="font-size: 12px; color: var(--text3); margin-bottom: 8px;">
+        DeePC 가 참조 궤적에 맞춰 유지하려는 변수. 주 목표는 내부 기온.
+      </p>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>변수</th><th>의미</th><th>단위</th><th>역할</th></tr>
+            </thead>
+            <tbody>
+              <tr style="background: var(--e1-bg);"><td><strong>meas_grh_temp</strong></td><td><strong>내부 기온</strong></td><td class="num">°C</td><td><strong>주 최적화 대상 (참조 궤적 ± 1°C 밴드)</strong></td></tr>
+              <tr><td>meas_CO2_conc</td><td>내부 CO₂</td><td class="num">ppm</td><td>부 최적화 (450~800 ppm 제약)</td></tr>
+              <tr><td>meas_RH</td><td>내부 상대습도</td><td class="num">%</td><td>관찰 (제약 없음)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="note-block note-info">
+        <strong>v7 → v8 의 가장 큰 구조 변화: 스크린 모델</strong><br>
+        v7 은 3중 스크린을 "스크린 1 하나만" 으로 단순화하여 에너지 스크린과 차광 스크린의 역할 차이를 무시.
+        v8 은 3개 스크린을 각각 별도 제어 변수로 모델링 (커튼 2, 3 신규 추가).
+      </div>
+
+      <div class="sl">전체 I/O 차원 요약</div>
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">제어 변수 (u)</div>
+          <div class="kpi-val">6<span class="kpi-unit">개</span></div>
+          <div class="kpi-note">v7 은 4개</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">외란 변수 (w)</div>
+          <div class="kpi-val">3<span class="kpi-unit">개</span></div>
+          <div class="kpi-note">예보·관측</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">출력 변수 (y)</div>
+          <div class="kpi-val">3<span class="kpi-unit">개</span></div>
+          <div class="kpi-note">온도·CO₂·RH</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">학습 궤적</div>
+          <div class="kpi-val">3,000<span class="kpi-unit">샘플</span></div>
+          <div class="kpi-note">v7 은 1,000</div>
+        </div>
+      </div>
+
+      <h2>DeePC 기본 개념</h2>
+      <div class="fig-wrap">
+        <img src="site_images/deepc_concept.png" alt="DeePC 개념">
+        <div class="fig-caption">
+          <strong>DeePC 의 핵심 개념.</strong> 과거 궤적 데이터에서 Hankel matrix 를 구성하여 미래 행동을 예측.
+          시스템 모델링 없이 데이터만으로 최적 제어 가능 (Willems' Fundamental Lemma).
+        </div>
+      </div>
+
+      <h2>v7 파일럿 → v8 본 농장 튜닝</h2>
+      <p>
+        v7 은 파일럿 버전으로 5가지 문제점이 있었음 v8 은 본 농장 데이터 특성에 맞춰 6가지 개선 작업 수행.
+      </p>
+
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>영역</th><th>v7 (파일럿)</th><th>v8 (본 농장 튜닝)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>스크린 모델</td><td>단일 스크린</td><td class="num">3중 스크린 분리 모델링</td></tr>
+              <tr><td>커튼 제어</td><td>연속 값</td><td class="num">10% 단위 이산화 (0, 10, 20…)</td></tr>
+              <tr><td>환기 급변</td><td>제약 없음</td><td class="num">±5%/15분 제약</td></tr>
+              <tr><td>학습 궤적</td><td>1,000 샘플</td><td class="num">3,000 샘플</td></tr>
+              <tr><td>용어</td><td>리워드 쪽</td><td class="num">lee / wind side</td></tr>
+              <tr><td>난방 편차</td><td>과소 모델링</td><td class="num">실제 편차 반영 시도</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h2>제어 전략 종합 (v7 vs v8 vs 실제)</h2>
+      <div class="fig-wrap">
+        <img src="site_images/deepc_strategy_summary.png" alt="제어 전략 요약">
+        <div class="fig-caption">
+          <strong>96시간 제어 전략 비교 요약표.</strong> 온도·CO₂·제어·스크린·성과 카테고리별로 v7 · v8 · 실제 운영 비교.
+          v8 밴드 준수율 100% vs 실제 14%, 난방 편차 v8 1.3°C vs 실제 23.8°C 등 제어 특성 차이 명확.
+        </div>
+      </div>
+
+      <h2>v7 vs v8 vs 실제 시계열 비교</h2>
+      <div class="fig-wrap">
+        <img src="site_images/deepc_v7_vs_v8_overlay.png" alt="v7 vs v8 비교">
+        <div class="fig-caption">
+          <strong>온도 · CO₂ · 난방 · 환기 4개 지표의 96시간 시계열.</strong> v8 은 참조 궤적에 가깝게 부드럽게 제어하며, 밴드 준수율 100% 달성.
+          실제 운영은 on/off 스윙이 심하고 밴드 이탈 빈번.
+        </div>
+      </div>
+
+      <h2>3중 스크린 제어 패턴</h2>
+      <div class="fig-wrap">
+        <img src="site_images/deepc_screens_overlay.png" alt="3중 스크린 비교">
+        <div class="fig-caption">
+          <strong>스크린 1·2·3 개도 비교.</strong> 실제 운영은 새벽 100% / 낮 0% 뚜렷한 시간 패턴. DeePC v8 은 약 10% 고정값으로만 제어.
+          <strong>DeePC 근본 한계:</strong> 평균치 근처 최적화 특성상 시간대별 리듬을 학습 못 함
+        </div>
+      </div>
+
+      <h2>DeePC 근본 한계</h2>
+      <div class="note-block note-alert">
+        <strong>DeePC 는 본질적으로 시간 패턴을 학습하지 못함</strong><br>
+        Hankel matrix 는 과거 궤적의 선형 조합으로 미래를 예측하는 특성상, <strong>"평균치 근처에서 최적 해를 찾는 경향"</strong>이 있음
+        실제 농부의 새벽↑ 낮↓ 스크린 리듬이나 난방 on/off 스윙 같은 시간 의존적 패턴은 재현 불가
+      </div>
+
+      <div class="sl">왜 평균치 근처로 수렴하는가</div>
+      <div class="card">
+        <div class="card-body" style="padding: 16px 20px;">
+          <h3 style="margin-top: 0;">① Hankel matrix 구조</h3>
+          <p style="margin-bottom: 4px;">
+            <strong>Hankel matrix 는 과거 창(window) 을 슬라이딩 해서 만든 행렬</strong>
+          </p>
+          <p style="padding-left: 16px; color: var(--text3); font-size: 12px; margin-bottom: 0;">
+            · 과거 데이터의 "조각들" 을 모아둔 거대한 데이터베이스
+          </p>
+
+          <h3>② 미래 예측 = 과거 조각들의 가중 평균</h3>
+          <p style="padding-left: 16px; color: var(--text3); font-size: 12px; margin-bottom: 0;">
+            · 결과적으로 극단값들이 서로 상쇄되어 "평균치" 로 수렴<br>
+            · 수학적으로는 "편차가 가장 작은 해" → 이게 최적화 목표
+          </p>
+
+          <h3>③ 실제 농부는 극단을 오가는 전략을 씀</h3>
+          <p style="padding-left: 16px; color: var(--text3); font-size: 12px; margin-bottom: 0;">
+            · 새벽 100% ↔ 낮 0%, 난방 ON 70°C ↔ OFF 30°C<br>
+            · DeePC 는 이 극단을 평균 50% 근처로 뭉갬<br>
+            · "수학적 최적" vs "실무 최적" 의 괴리
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>v8 성공 ✅</th><th>v8 실패 ❌</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>밴드 준수율 100%</td>
+                <td>스크린 시간 패턴 학습 불가</td>
+              </tr>
+              <tr>
+                <td>환기 급변 2.28% (목표 달성)</td>
+                <td>난방 On/Off 스윙 재현 불가</td>
+              </tr>
+              <tr>
+                <td>광합성 +4.7% 개선</td>
+                <td>15분 해상도 미달 (실측 1시간)</td>
+              </tr>
+              <tr>
+                <td>3중 스크린 구조 반영</td>
+                <td><strong>에너지 비용 미반영</strong></td>
+              </tr>
+              <tr>
+                <td>—</td>
+                <td><strong>목표 수확량 역산 미구현</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="note-block note-warn">
+        <strong>⚠️ 에너지 비용 미반영 한계 (재배사 피드백 반영)</strong><br>
+        실제 재배사는 "수확량 극대화" 가 아니라 "수익 극대화" 관점으로 운영함
+        예) DeePC 는 "CO₂ 600 ppm 주입" 을 추천하지만, 재배사는 "수확량 +10 kg (20만 원 증가) vs CO₂ 비용 (30만 원)" 계산하여 주입 포기
+        현재 DeePC 는 이 <strong>에너지·비용 제약</strong> 이 반영되지 않아 이론적 최적해만 제시
+        Phase 2 에서 <strong>에너지·매출·비용 함수</strong> 를 목적 함수에 추가 예정
+      </div>
+
+      <h2>Phase 2 개선 방향</h2>
+      <ul style="font-size: 13px; color: var(--text2); line-height: 1.8; padding-left: 20px;">
+        <li><strong>목표 수확량 역산 구현</strong>: 재배사 입력 "주당 0.7 kg/m²" → 최적 환경 자동 계산</li>
+        <li><strong>에너지·비용 목적 함수 추가</strong>: 수확량 vs 난방·CO₂·전력 비용 최적화</li>
+        <li><strong>MIQP (Mixed-Integer Quadratic Programming)</strong>: 이산 제어 확장으로 스크린 on/off 패턴 학습 가능</li>
+        <li><strong>Learning-based DeePC</strong>: 신경망 기반 Hankel matrix 학습으로 시간 의존성 포착</li>
+        <li><strong>15분 해상도</strong>: 원본 5분 데이터 재처리로 실제 제어 주기 맞춤</li>
+        <li><strong>실제 적용</strong>: PRIVA API 연결로 처방 → 실제 반응 데이터 수집</li>
+      </ul>
+
+      <div class="pdf-link-box">
+        <div>
+          <div class="pdf-link-title">DeePC 전체 기술 문서</div>
+          <div class="pdf-link-desc">Willems Lemma · Hankel matrix · v7/v8 상세 비교 · 약 23쪽</div>
+        </div>
+        <div class="pdf-link-actions">
+          <a href="04_DeePC/output/DeePC_tech_doc.pdf" class="model-btn primary">PDF</a>
+          <a href="04_DeePC/output/DeePC_tech_doc.docx" class="model-btn">Word</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════ 통합 검증 ════════ -->
+<div id="section-integration" class="section">
+  <div class="container">
+    <div class="sl">SECTION 02 · INTEGRATION VALIDATION</div>
+    <h1>통합 검증</h1>
+    <p class="desc">
+      4개 모델을 하나의 예측 체계로 통합하여 전 작기 단위로 검증.
+      남은 오차의 구조를 5가지 원인으로 분해하고 각 해결 경로 제시.
+    </p>
+
+    <div class="sl">3단계 모델 조합</div>
+    <div class="fig-wrap">
+      <img src="site_images/integration_chain_flow.png" alt="3단계 체인">
+      <div class="fig-caption">
+        <strong>TOMGRO → S&amp;V → XGBoost 체인.</strong> 저온기 한겨울 기준 단계별 예측값 추적.
+        실측 수확량 0.393 kg/m² 에 풀체인 예측 0.445 kg/m² 로 근접
+      </div>
+    </div>
+
+    <div class="sl">단계별 오차율 감소</div>
+    <div class="fig-wrap">
+      <img src="site_images/integration_mape_reduction.png" alt="오차율 감소">
+      <div class="fig-caption">
+        <strong>모델 조합별 단계적 예측 오차 (Phase 1.5).</strong> TOMGRO 단독 25.6% (물리 모델 이론 상한) → + S&amp;V 34.1% (수확 7주 전 착과기 EC) → + XGBoost 21.7% (잔차 보정 후 최종 결과)
+        
+      </div>
+    </div>
+
+    <div class="sl">주차별 예측 vs 실제 (28주)</div>
+    <div class="fig-wrap">
+      <img src="site_images/integration_weekly_comparison.png" alt="주차별 비교">
+      <div class="fig-caption">
+        <strong>전 작기 28주 예측 vs 실제.</strong> 빨간 음영 = XGBoost 예측 불가 구간 (2026-02 이후 학습 데이터 밖).
+        저온기 한겨울 에서 XGBoost 정확도 최대, 고온기 초가을 에서는 과대 예측.
+        <br><br>
+        <span style="color: var(--e2-text);"><strong>📊 색상 구분</strong></span>
+        — <span style="color: var(--e2-text);">초록</span>: 실제 수확량 (농가 기록)
+        · <span style="color: var(--e1-text);">파랑</span>: TOMGRO 단독 예측
+        · <span style="color: var(--e3-text);">갈색</span>: TOMGRO×S&V 예측
+        · <span style="color: var(--tag-rl);">빨강</span>: TOMGRO×S&V×XGBoost 최종 예측
+        
+      </div>
+    </div>
+
+    <div class="sl">월별 예측 오차 히트맵</div>
+    <div class="fig-wrap">
+      <img src="site_images/integration_monthly_mape.png" alt="월별 오차율">
+      <div class="fig-caption">
+        <strong>월별 모델 조합 오차율.</strong>
+        7월 39.5%, 8월 21.8%, 9월 20.8%, 10월 12.2%, 11월 7.6% (최저), 12월 28.7%, 1월 21.4%, 2월 98.7% (작기 말기)
+        저온기 한겨울 속한 11월이 가장 정확 (7.6%), 2월 (98.7%) 과 7월 (39.5%) 은 변동성 큼 → Phase 2 재학습 대상
+      </div>
+    </div>
+
+    <div class="sl">통합 검증 문서</div>
+    <div class="model-card">
+      <div class="model-header">
+        <div class="edition-dot e2">05</div>
+        <div class="model-title-wrap">
+          <div class="model-name">Integration Validation</div>
+          <div class="model-team">오차 원인을 안다 = 개선 경로 확보</div>
+        </div>
+        <span class="model-tag badge-green">통합 검증</span>
+      </div>
+      <div class="model-body">
+        <div class="model-desc">
+          단순히 오차율 21.7% 라는 수치가 아니라, 이 오차가 어디에서 오는지 5가지 원인으로 구조적으로 분해하고,
+          각 원인에 대한 해결 경로를 제시함 Phase 2 에서 달성 가능한 오차율 15~20% 는
+          희망이 아닌 구조적으로 계산된 예상임
+        </div>
+        <div class="model-stats-row">
+          <div class="model-stat"><div class="l">검증 주차</div><div class="v">28주</div></div>
+          <div class="model-stat"><div class="l">Phase 1.5 결과</div><div class="v">21.7%</div></div>
+        </div>
+        <div class="model-actions">
+          <a href="05_통합검증/output/Integration_tech_doc.pdf" class="model-btn primary">PDF</a>
+          <a href="05_통합검증/output/Integration_tech_doc.docx" class="model-btn">Word</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="sl">남은 오차의 구조 (오차율 21.7% 구성)</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="error-bars">
+          <div class="error-bar-item">
+            <div class="error-bar-label">XGBoost 학습 데이터 부족<span class="sol">→ 2~3작기 데이터 누적</span></div>
+            <div class="error-bar-track"><div class="error-bar-fill" style="width: 100%; background: #791F1F;"></div></div>
+            <div class="error-bar-pct" style="color:#791F1F;">40%</div>
+          </div>
+          <div class="error-bar-item">
+            <div class="error-bar-label">TOMGRO 일반 파라미터<span class="sol">→ 본 농장 전용 파라미터 튜닝</span></div>
+            <div class="error-bar-track"><div class="error-bar-fill" style="width: 50%; background: #0C447C;"></div></div>
+            <div class="error-bar-pct" style="color:#0C447C;">20%</div>
+          </div>
+          <div class="error-bar-item">
+            <div class="error-bar-label">LAI 측정 한계<span class="sol">→ 자동 센서 도입 (주 1회 → 일 1회)</span></div>
+            <div class="error-bar-track"><div class="error-bar-fill" style="width: 37.5%; background: #633806;"></div></div>
+            <div class="error-bar-pct" style="color:#633806;">15%</div>
+          </div>
+          <div class="error-bar-item">
+            <div class="error-bar-label">농작업 미반영<span class="sol">→ FarmWork 시스템 연동 (개발 중)</span></div>
+            <div class="error-bar-track"><div class="error-bar-fill" style="width: 37.5%; background: #3C3489;"></div></div>
+            <div class="error-bar-pct" style="color:#3C3489;">15%</div>
+          </div>
+          <div class="error-bar-item">
+            <div class="error-bar-label">품종 특성·기타<span class="sol">→ 품종별 보정 계수</span></div>
+            <div class="error-bar-track"><div class="error-bar-fill" style="width: 25%; background: #444441;"></div></div>
+            <div class="error-bar-pct" style="color:#444441;">10%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sl">오차 원인 분해 상세</div>
+    <div class="fig-wrap">
+      <img src="site_images/integration_error_decomposition.png" alt="오차 분해">
+      <div class="fig-caption">
+        <strong>현재 오차율 21.7% 의 구성 요인과 각 해결 경로.</strong> 모든 원인에 해결 경로가 존재하며, 대부분 Phase 2 에서 반영 가능.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ 부록 ════════ -->
+<div id="section-appendix" class="section">
+  <div class="container">
+    <div class="sl">APPENDIX · AGRICULTURAL WORK</div>
+    <h1>농작업 영향 모델링</h1>
+    <p class="desc">
+      FarmWork 시스템 도입 대비 이론 + 간접 분석 + Phase 2 로드맵.
+      본 작기 실측 농작업 기록은 없으나, 생육 데이터로 간접 분석 수행.
+    </p>
+
+    <div class="sl">엽수 변동으로 본 적엽 추적 (실측 데이터)</div>
+    <div class="fig-wrap">
+      <img src="site_images/farmwork_defoliation_trace.png" alt="적엽 추적">
+      <div class="fig-caption">
+        <strong>본 작기 실측 엽수·LAI 주간 변동.</strong> 엽수 ≥ 0.5매 감소 주 13회 추정 (빨간 음영) = 적엽 작업 추정 시점.
+        LAI 도 동시 감소 확인 → 적엽이 TOMGRO 광합성 계산에 직접 영향.
+      </div>
+    </div>
+
+    <div class="sl">적과 영향 시뮬레이션 (가상)</div>
+    <div class="fig-wrap">
+      <img src="site_images/farmwork_yield_simulation.png" alt="적과 시뮬레이션">
+      <div class="fig-caption">
+        <strong>가상 적과 시나리오.</strong> 적과 20% 시 과실 수는 감소하지만 평균 과중 +30% 증가로 20주 누적 수확량 +4.0% 개선 가능성.
+        단, 실제 효과는 품종·시기·환경에 따라 다름 → Phase 2 실측 필요.
+      </div>
+    </div>
+
+    <div class="sl">부록 문서</div>
+    <div class="model-card">
+      <div class="model-header">
+        <div class="edition-dot e-rb">부록</div>
+        <div class="model-title-wrap">
+          <div class="model-name">Farmwork Impact Modeling</div>
+          <div class="model-team">본 작기 엽수 변동에서 13회 적엽 작업 간접 추적</div>
+        </div>
+        <span class="model-tag badge-gray">이론 · 로드맵</span>
+      </div>
+      <div class="model-body">
+        <div class="model-desc">
+          실측 농작업 기록은 없지만, 주간 생육 측정 데이터의 엽수 변동으로 적엽 작업 흔적 13회 추정.
+          이론 + 간접 분석 + 가상 시뮬레이션 + FarmWork 연동 로드맵 구성.
+        </div>
+        <div class="model-stats-row">
+          <div class="model-stat"><div class="l">적엽 추정 주</div><div class="v">13회</div></div>
+          <div class="model-stat"><div class="l">오차율 감소 기대</div><div class="v">10~15%p</div></div>
+        </div>
+        <div class="model-actions">
+          <a href="별도_농작업/output/Farmwork_tech_doc.pdf" class="model-btn primary">PDF</a>
+          <a href="별도_농작업/output/Farmwork_tech_doc.docx" class="model-btn">Word</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="sl">FarmWork 앱 실제 화면</div>
+    <div class="fig-wrap">
+      <img src="site_images/farmwork.png" alt="FarmWork 앱 대시보드">
+      <div class="fig-caption">
+        <strong>FarmWork 재배팀 대시보드 (개발 진행 중).</strong>
+        출근 현황 (출근/지각/미출근/제외), TBM 반장 승인, 작업 일정·진행률, 작물별 주간 수확량 자동 집계 기능 구현 중
+        작업자 개인 건건이 입력이 아닌 반장 중심·진행률 기반 설계
+      </div>
+    </div>
+
+    <div class="sl">FarmWork 앱 연동 구조</div>
+    <div class="card">
+      <div class="card-body">
+        <table class="data-table">
+          <thead>
+            <tr><th>데이터 경로</th><th>수집 방식</th><th>AI 모델 연동</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>출근 현황</td><td>자동 (앱 로그인)</td><td class="num">XGBoost 특성 추가</td></tr>
+            <tr><td>작업 일정·진행률</td><td>반장 입력</td><td class="num">TOMGRO LAI 보정</td></tr>
+            <tr><td>작물별 수확량</td><td>자동 집계</td><td class="num">예측 검증</td></tr>
+            <tr><td>작업 유형·시간</td><td>시간표 등록</td><td class="num">작업 강도 환산</td></tr>
+            <tr><td>TBM 상태</td><td>반장 승인</td><td class="num">일별 가동 지표</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="note-block note-info">
+      FarmWork 시스템은 <strong>작업자 개인 입력이 아닌 반장 중심 · 진행률 기반</strong> 설계로 운영 부담이 낮음
+      AI 관점에서는 정밀도에 한계가 있지만 <strong>수확량 자동 집계</strong>로 모델 상시 검증 가능.
+    </div>
+  </div>
+</div>
+
+<!-- ════════ 로드맵 ════════ -->
+<div id="section-roadmap" class="section">
+  <div class="container">
+    <div class="sl">SECTION 03 · ROADMAP</div>
+    <h1>Phase 로드맵</h1>
+    <p class="desc">
+      오차 원인 해결에 따른 구조적 오차율 감소 예상.
+      Phase 2 목표는 섹션 02 에서 파악한 오차 원인 해결에 기반한 계산된 예상이며, 희망적 추정이 아님.
+    </p>
+
+    <div class="sl">Phase별 목표 오차율</div>
+    <div class="phase-grid">
+      <div class="phase-block p1">
+        <div class="phase-label">Phase 1</div>
+        <div class="phase-mape">21.7%</div>
+        <div class="phase-desc">현재 · 1작기 완료</div>
+        <div class="phase-tasks">
+          · 4개 모델 통합 체계 구축<br>
+          · Phase 1.5 결과 21.7% 달성<br>
+          · 오차 원인 5가지 파악
+        </div>
+      </div>
+      <div class="phase-block p2">
+        <div class="phase-label">Phase 2</div>
+        <div class="phase-mape">15~20%</div>
+        <div class="phase-desc">2작기 · 진행 대상</div>
+        <div class="phase-tasks">
+          · PAR 센서·엽면적 측정기<br>
+          · FarmWork 연동<br>
+          · 2작기 데이터 누적
+        </div>
+      </div>
+      <div class="phase-block p3">
+        <div class="phase-label">Phase 3</div>
+        <div class="phase-mape">10~15%</div>
+        <div class="phase-desc">3~5작기 · 본격 활용</div>
+        <div class="phase-tasks">
+          · 센서 자동화<br>
+          · 다작기 학습<br>
+          · DeePC MIQP 확장
+        </div>
+      </div>
+      <div class="phase-block pr">
+        <div class="phase-label">상용 수준</div>
+        <div class="phase-mape">10% 내외</div>
+        <div class="phase-desc">참고 · 업계 기준</div>
+        <div class="phase-tasks">
+          토마토 수확 예측<br>
+          일반적 상용 오차율 수준
+        </div>
+      </div>
+    </div>
+
+    <div class="sl">Phase 2 핵심 작업 항목</div>
+    <div class="card">
+      <div class="card-body">
+        <table class="data-table">
+          <thead>
+            <tr><th>우선순위</th><th>작업</th><th>대응 오차 원인</th><th>기대 감소</th><th>담당 모델</th></tr>
+          </thead>
+          <tbody>
+            <tr style="background: var(--tag-rl-bg);">
+              <td class="num"><strong>🔴 1</strong></td>
+              <td><strong>내부 광량 (calc radiation) 적용</strong></td>
+              <td>광량 입력 부정확 (신규 발견)</td>
+              <td class="num"><span class="badge badge-red">−30~50%p 잠재</span></td>
+              <td>TOMGRO</td>
+            </tr>
+            <tr style="background: var(--e3-bg);">
+              <td class="num"><strong>🟠 2</strong></td>
+              <td><strong>휴대용 PAR 센서 구매·측정</strong></td>
+              <td>내부 광량 센서 대표성 검증</td>
+              <td class="num"><span class="badge badge-red">−15~20%p 잠재</span></td>
+              <td>TOMGRO</td>
+            </tr>
+            <tr style="background: var(--e3-bg);">
+              <td class="num"><strong>🟠 3</strong></td>
+              <td><strong>엽면적 측정기 구매·SHAPE 실측</strong></td>
+              <td>LAI 계산 정확도 (SHAPE 0.5 검증)</td>
+              <td class="num"><span class="badge badge-amber">−5~10%p 잠재</span></td>
+              <td>TOMGRO</td>
+            </tr>
+            <tr style="background: var(--e2-bg); opacity: 0.7;">
+              <td class="num"><span style="text-decoration: line-through;">🟡 4</span> <span style="color: var(--e2-text);">✅</span></td>
+              <td><span style="text-decoration: line-through;">S&amp;V 반영 시차 8주 → 1~2주 조정</span> <strong style="color: var(--e2-text);">→ Phase 1 에서 반영 완료</strong></td>
+              <td>EC 영향 시점 재검토 (재배사 지적)</td>
+              <td class="num"><span class="badge badge-green">−1.6%p 달성</span></td>
+              <td>S&amp;V</td>
+            </tr>
+            <tr>
+              <td class="num">🟡 5</td>
+              <td>FarmWork 시스템 연동 (적엽 장 수 기록)</td>
+              <td>농작업 미반영 (15%)</td>
+              <td class="num"><span class="badge badge-green">−10~15%p</span></td>
+              <td>TOMGRO · XGBoost</td>
+            </tr>
+            <tr>
+              <td class="num">🟡 6</td>
+              <td>DeePC 에 목표 수확량 역산 로직 구현</td>
+              <td>재배사↔DeePC 연결 흐름 미구현</td>
+              <td class="num"><span class="badge badge-blue">흐름 완성</span></td>
+              <td>DeePC · TOMGRO</td>
+            </tr>
+            <tr>
+              <td class="num">🟡 7</td>
+              <td>DeePC 에너지·비용 목적 함수 추가</td>
+              <td>에너지 비용 미반영 (재배사 지적)</td>
+              <td class="num"><span class="badge badge-blue">실무 적용성</span></td>
+              <td>DeePC</td>
+            </tr>
+            <tr>
+              <td class="num">🟢 8</td>
+              <td>TOMGRO 본 농장 파라미터 튜닝</td>
+              <td>일반 파라미터 한계 (20%)</td>
+              <td class="num"><span class="badge badge-green">−5%p 이상</span></td>
+              <td>TOMGRO</td>
+            </tr>
+            <tr>
+              <td class="num">🟢 9</td>
+              <td>2작기 데이터 누적 + XGBoost 재학습</td>
+              <td>학습 데이터 부족 (40%)</td>
+              <td class="num"><span class="badge badge-green">가장 큰 개선 예상</span></td>
+              <td>XGBoost</td>
+            </tr>
+            <tr>
+              <td class="num">🟢 10</td>
+              <td>DeePC MIQP 이산 최적화 확장</td>
+              <td>시간 패턴 학습 불가</td>
+              <td class="num"><span class="badge badge-blue">제어 정확도</span></td>
+              <td>DeePC</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="note-block note-tip">
+      <strong>Phase 2 목표 오차율 25~30% 의 근거</strong><br>
+      🔴 내부 광량 적용 만으로도 TOMGRO 오차율 86% → 36% 로 대폭 감소 확인 (사전 실험 기준)
+      🟠 PAR 센서·엽면적 측정기 구매로 측정 정확도 확보
+      🟡 S&amp;V 시차 조정·FarmWork 연동으로 추가 개선
+      🟢 2작기 데이터 누적으로 XGBoost 안정화
+      <strong>단순 희망이 아닌 구조적으로 계산된 예상</strong>
+    </div>
+
+    <div class="note-block note-warn">
+      <strong>💰 Phase 2 필요 설비 투자 (팀장 승인 필요)</strong><br>
+      · <strong>휴대용 PAR 센서</strong>: 캐노피 상단 24시간 측정용 (약 50~100만 원)
+      · <strong>엽면적 측정기 (Leaf Area Meter)</strong>: 실측 기반 SHAPE 계수 도출 (약 300~500만 원)
+      · <strong>FarmWork 앱 기능 확장</strong>: 적엽 장 수 기록 등 (자체 개발)
+    </div>
+  </div>
+</div>
+
+</div>
+
+<footer class="page-footer">
+  GREF — Farm LAB 운영전략 · 방울토마토 재배 AI · 2026-04
+</footer>
+
+<!-- LIGHTBOX OVERLAY -->
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox(event)" aria-label="닫기">✕</button>
+  <img class="lightbox-image" id="lightbox-img" src="" alt="">
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+  <div class="lightbox-hint">클릭 또는 ESC 로 닫기</div>
+</div>
+
+<script>
+function switchMain(name, btn) {
+  document.querySelectorAll('#main-tabs .tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('section-' + name).classList.add('active');
+  
+  // 서브 네비 보이기/숨기기
+  var subNavs = document.querySelectorAll('.sub-nav-bar');
+  subNavs.forEach(function(n){ n.classList.remove('active'); });
+  var thisSubNav = document.getElementById('sub-nav-' + name);
+  if (thisSubNav) {
+    thisSubNav.classList.add('active');
+  }
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function switchSub(mainName, subName, btn) {
+  // 서브 탭 활성화
+  document.querySelectorAll('#sub-nav-' + mainName + ' .tab-btn').forEach(function(b){ 
+    b.classList.remove('active'); 
+  });
+  btn.classList.add('active');
+  
+  // 서브 섹션 전환
+  document.querySelectorAll('#section-' + mainName + ' .sub-section').forEach(function(s){
+    s.classList.remove('active');
+  });
+  document.getElementById('sub-' + mainName + '-' + subName).classList.add('active');
+  
+  window.scrollTo({ top: 80, behavior: 'smooth' });
+}
+
+// ══════════ LIGHTBOX ══════════
+function openLightbox(img) {
+  var overlay = document.getElementById('lightbox');
+  var lightboxImg = document.getElementById('lightbox-img');
+  var caption = document.getElementById('lightbox-caption');
+  
+  lightboxImg.src = img.src;
+  lightboxImg.alt = img.alt;
+  
+  // 부모 fig-wrap 에서 caption 가져오기
+  var figWrap = img.closest('.fig-wrap');
+  var figCaption = figWrap ? figWrap.querySelector('.fig-caption') : null;
+  if (figCaption) {
+    caption.innerHTML = figCaption.innerHTML;
+    caption.style.display = 'block';
+  } else {
+    caption.style.display = 'none';
+  }
+  
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(event) {
+  // 이미지 자체 클릭 시에는 닫지 않음 (오버레이 배경 또는 X 버튼 클릭만)
+  if (event && event.target.id === 'lightbox-img') return;
+  
+  var overlay = document.getElementById('lightbox');
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// 모든 fig-wrap 이미지에 클릭 이벤트 연결
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.fig-wrap img').forEach(function(img) {
+    img.addEventListener('click', function() {
+      openLightbox(this);
+    });
+  });
+});
+
+// ESC 키로 닫기
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeLightbox();
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// 인쇄 전 자동 섹션 그룹화 (.sl + 다음 요소를 print-keep 래퍼로)
+// A4 인쇄 시 섹션이 중간에 잘리지 않도록 자동 처리
+// ═══════════════════════════════════════════════════════════
+function wrapSectionsForPrint() {
+  // 이미 처리된 경우 재실행 방지
+  if (document.body.dataset.printPrepared === 'true') return;
+
+  // .sl 다음에 오는 단일 컨테이너 요소를 .print-keep 로 감싸기
+  const sls = document.querySelectorAll('.sl');
+  sls.forEach(sl => {
+    // 이미 .print-keep 내부라면 스킵
+    if (sl.closest('.print-keep')) return;
+    
+    const next = sl.nextElementSibling;
+    if (!next) return;
+    
+    // 너무 큰 컨테이너 (.two-col, 여러 카드 포함) 는 스킵
+    if (next.classList.contains('two-col')) return;
+    if (next.classList.contains('arch-diagram')) return;  // 이미 내부 노드 단위로 처리됨
+    
+    // 래퍼 생성 후 .sl + next 둘 다 안에 넣기
+    const wrapper = document.createElement('div');
+    wrapper.className = 'print-keep';
+    sl.parentNode.insertBefore(wrapper, sl);
+    wrapper.appendChild(sl);
+    wrapper.appendChild(next);
+  });
+  
+  document.body.dataset.printPrepared = 'true';
+}
+
+// 인쇄 직전 실행 (Ctrl+P 또는 파일 → 인쇄)
+window.addEventListener('beforeprint', wrapSectionsForPrint);
+
+// iOS/Safari 대응: matchMedia 로 인쇄 감지
+if (window.matchMedia) {
+  const mediaQueryList = window.matchMedia('print');
+  mediaQueryList.addEventListener('change', (mql) => {
+    if (mql.matches) wrapSectionsForPrint();
+  });
+}
+</script>
+
+</body>
+</html>
