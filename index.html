@@ -1705,8 +1705,11 @@ for week_end in features.index:
       <div class="fig-wrap">
         <img src="site_images/xgb_pred_vs_actual.png" alt="예측 vs 실제">
         <div class="fig-caption">
-          <strong>29주 학습 데이터 기준 예측 vs 실제.</strong> 학습 기준 오차율 5.4% 는 거의 완벽해 보이나,
-          CV 결과 23.6% 가 더 현실적인 실제 적용 성능.
+          <strong>29주 실측 기준 예측 vs 실제 (CV 기준).</strong>
+          XGBoost 결과는 5-fold 교차검증 out-of-fold 예측으로 <strong>실제 배포 환경에서의 성능</strong>을 대표.
+          왼쪽 라인 차트에서 초록(실측)과 빨강(XGBoost 최종 예측)이 거의 겹치며, 보조 모델(회색 TOMGRO 단독, 하늘 TOMGRO+S&V)이 더 넓은 편차를 보임.
+          오른쪽 산점도에서 XGBoost 점들이 y=x 선에 밀집하여 실측 대응도가 높음.
+          CV 기준 전 작기 오차율은 약 25% 수준이며, 학습 기준 5.4%는 참고치에 불과함.
         </div>
       </div>
 
