@@ -113,6 +113,49 @@ p strong { color: var(--text); font-weight: 600; }
 .kpi-unit { font-size: 12px; color: var(--text3); font-weight: 400; margin-left: 3px; }
 .kpi-note { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
+/* PERIOD BADGE — 지표의 기간 맥락 명시 */
+.period-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+.period-badge.full  { background: #E6F1FB; color: #0C447C; }
+.period-badge.low   { background: #FAEEDA; color: #8A5A0A; }
+.period-badge.week  { background: #FCEBEB; color: #791F1F; }
+.period-badge.goal  { background: #EEEDFE; color: #3C3489; }
+
+/* 기간 정의 안내 카드 */
+.period-guide-card {
+  background: #FFFBF2;
+  border: 1px solid #E5D5A8;
+  border-left: 4px solid #C8A04E;
+  border-radius: 4px;
+  padding: 14px 18px;
+  margin: 18px 0 24px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text);
+}
+.period-guide-title {
+  font-weight: 700;
+  color: #6B4A0E;
+  margin-bottom: 8px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+.period-guide-card .period-badge { margin-right: 6px; min-width: 56px; text-align: center; }
+.period-guide-card .period-footnote {
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: #8B6D23;
+  padding-top: 8px;
+  border-top: 1px dashed #E5D5A8;
+}
+
 /* TABLE */
 .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .data-table th { background: var(--surface2); color: var(--text3); font-weight: 500;
@@ -478,24 +521,36 @@ p strong { color: var(--text); font-weight: 600; }
     <div class="sl">핵심 지표</div>
     <div class="kpi-row">
       <div class="kpi-card">
-        <div class="kpi-label">Phase 1.5 통합 오차율</div>
+        <div class="kpi-label">통합 오차율 <span class="period-badge full">전 작기</span></div>
         <div class="kpi-val">21.7<span class="kpi-unit">%</span></div>
         <div class="kpi-note">TOMGRO → S&amp;V → XGBoost</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">저온기 월별 최저 오차율</div>
+        <div class="kpi-label">월별 최저 오차율 <span class="period-badge low">저온기</span></div>
         <div class="kpi-val">7.6<span class="kpi-unit">%</span></div>
         <div class="kpi-note">11월 전체 평균</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">DeePC 밴드 준수율</div>
+        <div class="kpi-label">DeePC 밴드 준수율 <span class="period-badge week">특정 주차</span></div>
         <div class="kpi-val">100<span class="kpi-unit">%</span></div>
-        <div class="kpi-note">실제 운영 14% 대비 (v8)</div>
+        <div class="kpi-note">v8 검증 · 실제 운영 14% 대비</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Phase 2 목표</div>
+        <div class="kpi-label">목표 오차율 <span class="period-badge goal">다음 작기</span></div>
         <div class="kpi-val">13~17<span class="kpi-unit">%</span></div>
         <div class="kpi-note">오차 원인 해결 기반</div>
+      </div>
+    </div>
+
+    <!-- 기간 정의 안내 카드 — 문서 전체의 지표 읽기 기준 -->
+    <div class="period-guide-card">
+      <div class="period-guide-title">📖 본 문서의 기간 정의 — 지표 읽기 기준</div>
+      <span class="period-badge full">전 작기</span> 2025-07-09 ~ 2026-04-08 (40주) — 본 파이프라인의 기본 분석 대상 · <strong>지표 기본값</strong><br>
+      <span class="period-badge low">저온기</span> 2025-11-12 ~ 2026-01-07 (8주) — 환경 변동이 상대적으로 안정한 구간 · 모델 검증 특화<br>
+      <span class="period-badge week">특정 주차</span> 개별 케이스 분석 시점 (예: 2025-11-06 ~ 11-12 주차)<br>
+      <span class="period-badge goal">다음 작기</span> 오차 원인 구조적 해결 후 도달 목표
+      <div class="period-footnote">
+        별도 배지가 없는 모든 수치는 <strong>전 작기 기준</strong>. 차트·표 헤더의 배지를 먼저 확인해 주세요.
       </div>
     </div>
 
@@ -815,8 +870,8 @@ p strong { color: var(--text); font-weight: 600; }
               주간 수확량을 예측.
             </div>
             <div class="model-stats-row">
-              <div class="model-stat"><div class="l">단독 오차율</div><div class="v">25.6%</div></div>
-              <div class="model-stat"><div class="l">저온기 한겨울 예측</div><div class="v">0.402 kg/m²</div></div>
+              <div class="model-stat"><div class="l">단독 오차율 <span class="period-badge full">전 작기</span></div><div class="v">25.6%</div></div>
+              <div class="model-stat"><div class="l">한겨울 예측 <span class="period-badge week">특정 주차</span></div><div class="v">0.402 kg/m²</div></div>
             </div>
             <div class="model-actions">
               <a href="#" onclick="switchSub('models','tomgro',document.querySelector('#sub-nav-models .tab-btn:nth-child(2)')); return false;" class="model-btn primary">자세히 보기</a>
@@ -840,8 +895,8 @@ p strong { color: var(--text); font-weight: 600; }
               TOMGRO 결과에 곱 계수로 적용.
             </div>
             <div class="model-stats-row">
-              <div class="model-stat"><div class="l">+ TOMGRO 오차율</div><div class="v">34.1%</div></div>
-              <div class="model-stat"><div class="l">저온기 한겨울 상대수량</div><div class="v">0.731</div></div>
+              <div class="model-stat"><div class="l">+ TOMGRO 오차율 <span class="period-badge full">전 작기</span></div><div class="v">34.1%</div></div>
+              <div class="model-stat"><div class="l">한겨울 상대수량 <span class="period-badge week">특정 주차</span></div><div class="v">0.731</div></div>
             </div>
             <div class="model-actions">
               <a href="#" onclick="switchSub('models','sv',document.querySelector('#sub-nav-models .tab-btn:nth-child(3)')); return false;" class="model-btn primary">자세히 보기</a>
@@ -865,7 +920,7 @@ p strong { color: var(--text); font-weight: 600; }
               (학습 오차율 5.4% vs CV 오차율 23.6%).
             </div>
             <div class="model-stats-row">
-              <div class="model-stat"><div class="l">+ 체인 오차율</div><div class="v">21.7%</div></div>
+              <div class="model-stat"><div class="l">+ 체인 오차율 <span class="period-badge full">전 작기</span></div><div class="v">21.7%</div></div>
               <div class="model-stat"><div class="l">학습 주차</div><div class="v">29주</div></div>
             </div>
             <div class="model-actions">
@@ -890,8 +945,8 @@ p strong { color: var(--text); font-weight: 600; }
               3중 스크린 · 환기 급변 제약 등 반영.
             </div>
             <div class="model-stats-row">
-              <div class="model-stat"><div class="l">밴드 준수율</div><div class="v">100%</div></div>
-              <div class="model-stat"><div class="l">광합성 개선</div><div class="v">+4.7%</div></div>
+              <div class="model-stat"><div class="l">밴드 준수율 <span class="period-badge week">특정 주차</span></div><div class="v">100%</div></div>
+              <div class="model-stat"><div class="l">광합성 개선 <span class="period-badge week">특정 주차</span></div><div class="v">+4.7%</div></div>
             </div>
             <div class="model-actions">
               <a href="#" onclick="switchSub('models','deepc',document.querySelector('#sub-nav-models .tab-btn:nth-child(5)')); return false;" class="model-btn primary">자세히 보기</a>
