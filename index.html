@@ -483,7 +483,7 @@ p strong { color: var(--text); font-weight: 600; }
   <div class="header-inner">
     <div class="header-top">
       <div class="logo">GREF <span>Farm LAB 운영전략</span></div>
-      <div class="header-sub">방울토마토 재배 AI · Phase 1.5 기술 문서 시리즈</div>
+      <div class="header-sub">방울토마토 재배 AI · 기술 문서 시리즈</div>
     </div>
     <nav class="tabs" id="main-tabs">
       <button class="tab-btn active" onclick="switchMain('overview',this)">개요</button>
@@ -511,7 +511,7 @@ p strong { color: var(--text); font-weight: 600; }
 <div id="section-overview" class="section active">
   <div class="container">
     <div class="sl">SECTION 00 · OVERVIEW</div>
-    <h1>방울토마토 재배 AI — Phase 1 완료</h1>
+    <h1>방울토마토 재배 AI — 본 작기 완료</h1>
     <p class="desc">
       물리 기반 모델(TOMGRO, Sonneveld &amp; Voogt) · 머신러닝(XGBoost) · 데이터 기반 제어(DeePC) 를 통합한
       수확량 예측·환경 처방 AI 시스템. 1작기 검증을 통해 <strong>예측 오차율 21.7%</strong> 달성 및
@@ -623,9 +623,10 @@ p strong { color: var(--text); font-weight: 600; }
     </p>
 
     <div class="arch-legend">
-      <div class="arch-legend-item"><span class="arch-legend-dot" style="background: #3B6D11;"></span>구현 완료 (Phase 1)</div>
-      <div class="arch-legend-item"><span class="arch-legend-dot" style="background: #884C06;"></span>Phase 2 구현 예정</div>
+      <div class="arch-legend-item"><span class="arch-legend-dot" style="background: #3B6D11;"></span>구현 완료 (본 작기)</div>
+      <div class="arch-legend-item"><span class="arch-legend-dot" style="background: #884C06;"></span>다음 작기 구현 예정</div>
       <div class="arch-legend-item"><span class="arch-legend-dot" style="background: #185FA5;"></span>사람 개입 (재배사)</div>
+      <div class="arch-legend-item"><span class="arch-legend-dot" style="background: #3C3489;"></span>협의 단계 (LLM 재검증)</div>
     </div>
 
     <div class="arch-diagram">
@@ -720,7 +721,7 @@ p strong { color: var(--text); font-weight: 600; }
             <div class="arch-node-head">
               <span class="arch-step-tag">STEP 4</span>
               <span class="arch-step-name">역산 (목표 → 환경)</span>
-              <span class="arch-step-status status-pending">Phase 2</span>
+              <span class="arch-step-status status-pending">다음 작기</span>
             </div>
             <div class="arch-node-body">
               <strong>TOMGRO 수식 역산</strong><br><br>
@@ -767,6 +768,28 @@ p strong { color: var(--text); font-weight: 600; }
         <div class="arch-merge-line"></div>
       </div>
 
+      <!-- STEP 5.5 — LLM 재검증 (합류 직후, STEP 6 전) -->
+      <div class="arch-node" style="border:1.5px solid #3C3489;background:#F5F4FF;">
+        <div class="arch-node-head">
+          <span class="arch-step-tag" style="background:#EEEDFE;color:#3C3489;">STEP 5.5</span>
+          <span class="arch-step-name">LLM 재검증 (합리성 판단)</span>
+          <span class="arch-step-status" style="background:#EEEDFE;color:#3C3489;">협의 단계</span>
+        </div>
+        <div class="arch-node-body">
+          <strong>"이 처방이 왜 합리적인가?"</strong><br><br>
+          STEP 2 예측 + STEP 5 DeePC 처방을 LLM에 전달 →<br>
+          <span class="arch-sub">· 왜 이 값인지 근거·이유 생성</span><br>
+          <span class="arch-sub">· 극단값 여부 · safety band 초과 점검</span><br>
+          <span class="arch-sub">· 특이 이벤트(적엽·적과·적심) 반영도 확인</span><br><br>
+          <strong>→ 재배사 검토·승인 후 Priva에 반영</strong>
+        </div>
+      </div>
+
+      <div class="arch-connector">
+        <div class="arch-line-v"></div>
+        <div class="arch-label">검증 통과</div>
+      </div>
+
       <!-- STEP 6 -->
       <div class="arch-node compute">
         <div class="arch-node-head">
@@ -790,7 +813,7 @@ p strong { color: var(--text); font-weight: 600; }
         <div class="arch-node-head">
           <span class="arch-step-tag">STEP 7</span>
           <span class="arch-step-name">피드백 루프 (학습)</span>
-          <span class="arch-step-status status-pending">Phase 2</span>
+          <span class="arch-step-status status-pending">다음 작기</span>
         </div>
         <div class="arch-node-body">
           <strong>예측 vs 실측 비교</strong><br>
@@ -806,7 +829,7 @@ p strong { color: var(--text); font-weight: 600; }
       의사결정 (STEP 3) 은 재배사가, 계산·역산·처방 (STEP 2·4·5) 은 AI 가 담당함
       재배사는 AI 예측을 참고하여 <strong>현실적 목표 설정</strong> 을 하고, AI 는 그 목표 달성을 위한 <strong>환경·설비 설정값</strong> 을 제시함
       <br><br>
-      <strong>Phase 1 구현</strong>: STEP 1·2·5·6 · <strong>Phase 2 구현 예정</strong>: STEP 3 UI·STEP 4 역산·STEP 7 자동 재학습
+      <strong>본 작기 구현</strong>: STEP 1·2·5·6 · <strong>다음 작기 구현 예정</strong>: STEP 3 UI · STEP 4 역산 · <strong>STEP 5.5 LLM 재검증</strong> · STEP 7 자동 재학습
     </div>
 
     <div class="sl">모델 조합별 단계적 예측</div>
@@ -834,8 +857,8 @@ p strong { color: var(--text); font-weight: 600; }
 
     <div class="note-block note-tip" style="margin-top: 24px;">
       <strong>본 프로젝트의 핵심 가치</strong><br>
-      Phase 1.5 오차율 <strong>21.7%</strong> 를 달성함과 동시에, <strong>남은 오차의 구조를 5가지 원인으로 분해</strong>하고
-      각 원인마다 해결 경로를 확보함 Phase 2 목표 오차율 13~17% 는
+      본 작기 오차율 <strong>21.7%</strong> 를 달성함과 동시에, <strong>남은 오차의 구조를 5가지 원인으로 분해</strong>하고
+      각 원인마다 해결 경로를 확보함 다음 작기 목표 오차율 13~17% 는
       <strong>구조적으로 계산된 예상</strong>이며, 단순 희망이 아님
     </div>
   </div>
@@ -1088,7 +1111,7 @@ Step 3: 캐노피 전체 (5개 층 적분)
           <strong>LAI 40주 추이.</strong> 초기(7~9월) LAI 1~3 급성장, 중기(10~11월) 최대 3~5, 겨울 저광기(12~2월) 2~3 감소, 말기(3~4월) 1~1.5 부근 종료 준비
           3개 Scene 모두 TOMGRO 정상 운영 구간에 해당
           <br>
-          ※ 이미지는 SHAPE 0.7 기준으로 생성되었으므로 표시 값을 × 0.714 로 환산하여 해석 필요 (Phase 2 재생성 예정)
+          ※ 이미지는 SHAPE 0.7 기준으로 생성되었으므로 표시 값을 × 0.714 로 환산하여 해석 필요 (다음 작기 재생성 예정)
         </div>
       </div>
 
@@ -1293,7 +1316,7 @@ Step 3: 캐노피 전체 (5개 층 적분)
             <tbody>
               <tr><td style="color: var(--text3);">외부 광량 그대로 사용</td><td class="num" style="color: var(--text3);">86.0%</td><td class="num" style="color: var(--text3);">25.1 kg/m²</td><td class="num" style="color: var(--tag-rl);">+121% 과대</td></tr>
               <tr><td style="color: var(--text3);">내부 센서 그대로 사용</td><td class="num" style="color: var(--text3);">64.0%</td><td class="num" style="color: var(--text3);">6.3 kg/m²</td><td class="num" style="color: var(--tag-rl);">−45% 과소</td></tr>
-              <tr style="background: var(--e2-bg);"><td><strong>투과율 50% 적용 (Phase 1.5 기준)</strong></td><td class="num"><strong>25.6%</strong></td><td class="num"><strong>9.6 kg/m²</strong></td><td class="num"><strong>−10% 근접</strong></td></tr>
+              <tr style="background: var(--e2-bg);"><td><strong>투과율 50% 적용 (본 작기 기준)</strong></td><td class="num"><strong>25.6%</strong></td><td class="num"><strong>9.6 kg/m²</strong></td><td class="num"><strong>−10% 근접</strong></td></tr>
               <tr><td style="color: var(--text3);">실측 (참고)</td><td class="num">—</td><td class="num">11.4 kg/m²</td><td>—</td></tr>
             </tbody>
           </table>
@@ -1309,9 +1332,9 @@ Step 3: 캐노피 전체 (5개 층 적분)
       <div class="note-block note-warn">
         <strong>⚠️ 외부 vs 내부 광량 차이 — 실제 PAR 측정 필요</strong><br>
         외부 광량과 내부 광량의 차이가 <strong>약 78% (투과율 22%)</strong> 로 매우 큼
-        본 Phase 1 에서는 데이터 최적화로 투과율 50% 가 적합함을 찾았으나, 이는 <strong>실측값이 아닌 추정값</strong>임
+        본 작기에서는 데이터 최적화로 투과율 50% 가 적합함을 찾았으나, 이는 <strong>실측값이 아닌 추정값</strong>임
         <br><br>
-        <strong>Phase 2 필수 작업:</strong>
+        <strong>다음 작기 필수 작업:</strong>
         <br>· 캐노피 상단 레벨에 <strong>PAR 센서 (μmol/m²/s 직접 측정)</strong> 추가 설치 필요
         <br>· 스크린 구간별로 센서 배치하여 투과율 공간 분포 파악
         <br>· 동적 투과율 모델 구축 (스크린 개도 · 시간 · 태양 고도에 따른 변동)
@@ -1502,19 +1525,19 @@ Step 3: 캐노피 전체 (5개 층 적분)
       </div>
 
       <div class="note-block note-tip">
-        <strong>✅ S&amp;V 시차 발견 — Phase 1.5 핵심 업데이트</strong><br>
+        <strong>✅ S&amp;V 시차 발견 — 핵심 업데이트</strong><br>
         재배사 피드백에서 출발한 EC 심층 분석 결과, 본 농장 방울토마토는 
         <strong>수확 7주 전 (착과기) EC</strong> 가 과실 크기를 결정함이 데이터로 확인됨
         <br><br>
-        <strong>Phase 1 → Phase 1.5 변경</strong><br>
-        · 기존 (Phase 1): 수확 1주 전 EC (착색기) — WMAPE 25.2%<br>
-        · 현재 (Phase 1.5): <strong>수확 7주 전 EC (착과기)</strong> — WMAPE <strong>21.7%</strong><br>
+        <strong>초기 설정 → 본 작기 변경</strong><br>
+        · 기존 (초기): 수확 1주 전 EC (착색기) — WMAPE 25.2%<br>
+        · 현재 (본 작기): <strong>수확 7주 전 EC (착과기)</strong> — WMAPE <strong>21.7%</strong><br>
         · 개선 폭: <strong>−3.5%p</strong>
         <br><br>
         <strong>생리학적 의미</strong><br>
         · 착과기 (수확 7주 전): 세포 분열 단계 → <strong>과실 크기 결정</strong> (수확량)<br>
         · 과실 비대기 (수확 2~5주 전): 이미 정해진 세포 수로 비대<br>
-        · 착색기 (수확 1주 전): 당도 집적 (품질, Phase 2 브릭스 예측 대상)
+        · 착색기 (수확 1주 전): 당도 집적 (품질, 다음 작기 브릭스 예측 대상)
       </div>
 
       <div class="note-block note-warn">
@@ -1525,7 +1548,7 @@ Step 3: 캐노피 전체 (5개 층 적분)
         · 여기에 S&amp;V (착과기 EC 5.49, yield 0.731) 곱하면 0.293 kg 로 과소 예측<br>
         · 이후 XGBoost 가 잔차 학습으로 0.378 kg 까지 복구<br>
         <br>
-        Phase 2 에서 <strong>TOMGRO 이상 LAI 추정 + S&amp;V 수분·건물 분리 모델</strong> 로 구조적 개선 예정
+        다음 작기에서 <strong>TOMGRO 이상 LAI 추정 + S&amp;V 수분·건물 분리 모델</strong> 로 구조적 개선 예정
       </div>
 
       <div class="pdf-link-box">
@@ -1561,7 +1584,7 @@ Step 3: 캐노피 전체 (5개 층 적분)
         <div class="kpi-card">
           <div class="kpi-label">CV 오차율 (5-fold)</div>
           <div class="kpi-val">21.7<span class="kpi-unit">%</span></div>
-          <div class="kpi-note">Phase 1.5 (착과기 기준)</div>
+          <div class="kpi-note">본 작기 (착과기 기준)</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">+ 체인 오차율</div>
@@ -1753,7 +1776,7 @@ for week_end in features.index:
       <div class="note-block note-alert">
         <strong>현재 단계 평가: 실무 예측 사용 시 주의.</strong><br>
         학습 오차율 5.4% 를 그대로 실무에 적용 금지. CV 오차율 23.6% (±20.1) 가 현실적 기대치이며,
-        특성 중요도 분석을 통한 인사이트 도출에 주로 활용. Phase 2 에서 2작기 데이터로 재학습 후 재평가 예정.
+        특성 중요도 분석을 통한 인사이트 도출에 주로 활용. 다음 작기에서 2작기 데이터로 재학습 후 재평가 예정.
       </div>
 
       <div class="pdf-link-box">
@@ -1828,7 +1851,7 @@ for week_end in features.index:
 
         <strong>⚠️ 현재 한계:</strong> ①번 역산 로직 (목표 수확량 → 최적 환경) 미구현 상태
         현재는 DeePC 가 과거 데이터 기반으로 "그 시점에 최적이었을 환경" 을 역산만 하며, 
-        "재배사가 원하는 목표 수확량" 입력은 Phase 2 에서 추가 예정
+        "재배사가 원하는 목표 수확량" 입력은 다음 작기에서 추가 예정
       </div>
 
       <div class="sl">Control (u) — 제어 변수 6개 (v8 기준)</div>
@@ -2050,10 +2073,10 @@ for week_end in features.index:
         실제 재배사는 "수확량 극대화" 가 아니라 "수익 극대화" 관점으로 운영함
         예) DeePC 는 "CO₂ 600 ppm 주입" 을 추천하지만, 재배사는 "수확량 +10 kg (20만 원 증가) vs CO₂ 비용 (30만 원)" 계산하여 주입 포기
         현재 DeePC 는 이 <strong>에너지·비용 제약</strong> 이 반영되지 않아 이론적 최적해만 제시
-        Phase 2 에서 <strong>에너지·매출·비용 함수</strong> 를 목적 함수에 추가 예정
+        다음 작기에서 <strong>에너지·매출·비용 함수</strong> 를 목적 함수에 추가 예정
       </div>
 
-      <h2>Phase 2 개선 방향</h2>
+      <h2>다음 작기 개선 방향</h2>
       <ul style="font-size: 13px; color: var(--text2); line-height: 1.8; padding-left: 20px;">
         <li><strong>목표 수확량 역산 구현</strong>: 재배사 입력 "주당 0.7 kg/m²" → 최적 환경 자동 계산</li>
         <li><strong>에너지·비용 목적 함수 추가</strong>: 수확량 vs 난방·CO₂·전력 비용 최적화</li>
@@ -2097,11 +2120,36 @@ for week_end in features.index:
       </div>
     </div>
 
+    <!-- 3단계 모델별 설명 카드 (이미지 하단) -->
+    <div class="model-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 18px;">
+
+      <div class="model-info-card" style="border:1px solid #BDD4E9;border-radius:4px;background:#F2F8FD;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:700;color:#1F4E79;margin-bottom:4px;">TOMGRO (광합성·건물)</div>
+        <div style="font-size:12.5px;color:#2E4E6B;line-height:1.6;">Jones et al. 1991 방울토마토 동적 생장 모델. 광합성·호흡·에너지 배분(건물 분배)을 수식으로 기술해 <strong>주간 이론 수확량</strong>을 산출.</div>
+      </div>
+
+      <div class="model-info-card" style="border:1px solid #EBCB95;border-radius:4px;background:#FDF6E7;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:700;color:#7A4A12;margin-bottom:4px;">+ S&amp;V (EC 수량 감소)</div>
+        <div style="font-size:12.5px;color:#5C3F13;line-height:1.6;">Sonneveld &amp; Voogt 경험식. <strong>슬라브 EC 스트레스에 의한 상대 수량 감소</strong>를 곱 계수로 TOMGRO 결과에 적용.</div>
+      </div>
+
+      <div class="model-info-card" style="border:1px solid #E4B9B9;border-radius:4px;background:#FBEEEE;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:700;color:#7A1F1F;margin-bottom:4px;">+ XGBoost (ML 잔차 보정)</div>
+        <div style="font-size:12.5px;color:#5B2222;line-height:1.6;">36개 환경·생육 특성을 학습하여 물리 모델이 놓친 <strong>잔차 패턴을 보정</strong>. 5-fold CV로 과적합 견제.</div>
+      </div>
+
+      <div class="model-info-card" style="border:1px solid #B7D8A8;border-radius:4px;background:#EFF8EA;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:700;color:#2D5C20;margin-bottom:4px;">실제 수확 (측정값)</div>
+        <div style="font-size:12.5px;color:#344B26;line-height:1.6;">주간 측정 수확량. 모든 예측의 <strong>비교 기준</strong>이자 XGBoost 학습·검증의 타깃 레이블.</div>
+      </div>
+
+    </div>
+
     <div class="sl">단계별 오차율 감소</div>
     <div class="fig-wrap">
       <img src="site_images/integration_mape_reduction.png" alt="오차율 감소">
       <div class="fig-caption">
-        <strong>모델 조합별 단계적 예측 오차 (Phase 1.5).</strong> TOMGRO 단독 25.6% (물리 모델 이론 상한) → + S&amp;V 34.1% (수확 7주 전 착과기 EC) → + XGBoost 21.7% (잔차 보정 후 최종 결과)
+        <strong>모델 조합별 단계적 예측 오차 (본 작기).</strong> TOMGRO 단독 25.6% (물리 모델 이론 상한) → + S&amp;V 34.1% (수확 7주 전 착과기 EC) → + XGBoost 21.7% (잔차 보정 후 최종 결과)
         
       </div>
     </div>
@@ -2128,7 +2176,7 @@ for week_end in features.index:
       <div class="fig-caption">
         <strong>월별 모델 조합 오차율.</strong>
         7월 39.5%, 8월 21.8%, 9월 20.8%, 10월 12.2%, 11월 7.6% (최저), 12월 28.7%, 1월 21.4%, 2월 98.7% (작기 말기)
-        저온기 한겨울 속한 11월이 가장 정확 (7.6%), 2월 (98.7%) 과 7월 (39.5%) 은 변동성 큼 → Phase 2 재학습 대상
+        저온기 한겨울 속한 11월이 가장 정확 (7.6%), 2월 (98.7%) 과 7월 (39.5%) 은 변동성 큼 → 다음 작기 재학습 대상
       </div>
     </div>
 
@@ -2145,12 +2193,12 @@ for week_end in features.index:
       <div class="model-body">
         <div class="model-desc">
           단순히 오차율 21.7% 라는 수치가 아니라, 이 오차가 어디에서 오는지 5가지 원인으로 구조적으로 분해하고,
-          각 원인에 대한 해결 경로를 제시함 Phase 2 에서 달성 가능한 오차율 15~20% 는
+          각 원인에 대한 해결 경로를 제시함 다음 작기에서 달성 가능한 오차율 15~20% 는
           희망이 아닌 구조적으로 계산된 예상임
         </div>
         <div class="model-stats-row">
           <div class="model-stat"><div class="l">검증 주차</div><div class="v">28주</div></div>
-          <div class="model-stat"><div class="l">Phase 1.5 결과</div><div class="v">21.7%</div></div>
+          <div class="model-stat"><div class="l">본 작기 결과</div><div class="v">21.7%</div></div>
         </div>
         <div class="model-actions">
           <a href="05_통합검증/output/Integration_tech_doc.pdf" class="model-btn primary">PDF</a>
@@ -2196,7 +2244,7 @@ for week_end in features.index:
     <div class="fig-wrap">
       <img src="site_images/integration_error_decomposition.png" alt="오차 분해">
       <div class="fig-caption">
-        <strong>현재 오차율 21.7% 의 구성 요인과 각 해결 경로.</strong> 모든 원인에 해결 경로가 존재하며, 대부분 Phase 2 에서 반영 가능.
+        <strong>현재 오차율 21.7% 의 구성 요인과 각 해결 경로.</strong> 모든 원인에 해결 경로가 존재하며, 대부분 다음 작기에서 반영 가능.
       </div>
     </div>
   </div>
@@ -2208,7 +2256,7 @@ for week_end in features.index:
     <div class="sl">APPENDIX · AGRICULTURAL WORK</div>
     <h1>농작업 영향 모델링</h1>
     <p class="desc">
-      FarmWork 시스템 도입 대비 이론 + 간접 분석 + Phase 2 로드맵.
+      FarmWork 시스템 도입 대비 이론 + 간접 분석 + 다음 작기 로드맵.
       본 작기 실측 농작업 기록은 없으나, 생육 데이터로 간접 분석 수행.
     </p>
 
@@ -2226,7 +2274,7 @@ for week_end in features.index:
       <img src="site_images/farmwork_yield_simulation.png" alt="적과 시뮬레이션">
       <div class="fig-caption">
         <strong>가상 적과 시나리오.</strong> 적과 20% 시 과실 수는 감소하지만 평균 과중 +30% 증가로 20주 누적 수확량 +4.0% 개선 가능성.
-        단, 실제 효과는 품종·시기·환경에 따라 다름 → Phase 2 실측 필요.
+        단, 실제 효과는 품종·시기·환경에 따라 다름 → 다음 작기 실측 필요.
       </div>
     </div>
 
@@ -2295,26 +2343,26 @@ for week_end in features.index:
 <div id="section-roadmap" class="section">
   <div class="container">
     <div class="sl">SECTION 03 · ROADMAP</div>
-    <h1>Phase 로드맵</h1>
+    <h1>단계별 로드맵</h1>
     <p class="desc">
       오차 원인 해결에 따른 구조적 오차율 감소 예상.
-      Phase 2 목표는 섹션 02 에서 파악한 오차 원인 해결에 기반한 계산된 예상이며, 희망적 추정이 아님.
+      다음 작기 목표는 섹션 02 에서 파악한 오차 원인 해결에 기반한 계산된 예상이며, 희망적 추정이 아님.
     </p>
 
     <div class="sl">Phase별 목표 오차율</div>
     <div class="phase-grid">
       <div class="phase-block p1">
-        <div class="phase-label">Phase 1</div>
+        <div class="phase-label">본 작기</div>
         <div class="phase-mape">21.7%</div>
         <div class="phase-desc">현재 · 1작기 완료</div>
         <div class="phase-tasks">
           · 4개 모델 통합 체계 구축<br>
-          · Phase 1.5 결과 21.7% 달성<br>
+          · 본 작기 결과 21.7% 달성<br>
           · 오차 원인 5가지 파악
         </div>
       </div>
       <div class="phase-block p2">
-        <div class="phase-label">Phase 2</div>
+        <div class="phase-label">다음 작기</div>
         <div class="phase-mape">15~20%</div>
         <div class="phase-desc">2작기 · 진행 대상</div>
         <div class="phase-tasks">
@@ -2324,7 +2372,7 @@ for week_end in features.index:
         </div>
       </div>
       <div class="phase-block p3">
-        <div class="phase-label">Phase 3</div>
+        <div class="phase-label">후기 단계</div>
         <div class="phase-mape">10~15%</div>
         <div class="phase-desc">3~5작기 · 본격 활용</div>
         <div class="phase-tasks">
@@ -2344,7 +2392,7 @@ for week_end in features.index:
       </div>
     </div>
 
-    <div class="sl">Phase 2 핵심 작업 항목</div>
+    <div class="sl">다음 작기 핵심 작업 항목</div>
     <div class="card">
       <div class="card-body">
         <table class="data-table">
@@ -2375,7 +2423,7 @@ for week_end in features.index:
             </tr>
             <tr style="background: var(--e2-bg); opacity: 0.7;">
               <td class="num"><span style="text-decoration: line-through;">🟡 4</span> <span style="color: var(--e2-text);">✅</span></td>
-              <td><span style="text-decoration: line-through;">S&amp;V 반영 시차 8주 → 1~2주 조정</span> <strong style="color: var(--e2-text);">→ Phase 1 에서 반영 완료</strong></td>
+              <td><span style="text-decoration: line-through;">S&amp;V 반영 시차 8주 → 1~2주 조정</span> <strong style="color: var(--e2-text);">→ 본 작기에서 반영 완료</strong></td>
               <td>EC 영향 시점 재검토 (재배사 지적)</td>
               <td class="num"><span class="badge badge-green">−1.6%p 달성</span></td>
               <td>S&amp;V</td>
@@ -2428,7 +2476,7 @@ for week_end in features.index:
     </div>
 
     <div class="note-block note-tip">
-      <strong>Phase 2 목표 오차율 25~30% 의 근거</strong><br>
+      <strong>다음 작기 목표 오차율 25~30% 의 근거</strong><br>
       🔴 내부 광량 적용 만으로도 TOMGRO 오차율 86% → 36% 로 대폭 감소 확인 (사전 실험 기준)
       🟠 PAR 센서·엽면적 측정기 구매로 측정 정확도 확보
       🟡 S&amp;V 시차 조정·FarmWork 연동으로 추가 개선
@@ -2437,7 +2485,7 @@ for week_end in features.index:
     </div>
 
     <div class="note-block note-warn">
-      <strong>💰 Phase 2 필요 설비 투자 (팀장 승인 필요)</strong><br>
+      <strong>💰 다음 작기 필요 설비 투자 (팀장 승인 필요)</strong><br>
       · <strong>휴대용 PAR 센서</strong>: 캐노피 상단 24시간 측정용 (약 50~100만 원)
       · <strong>엽면적 측정기 (Leaf Area Meter)</strong>: 실측 기반 SHAPE 계수 도출 (약 300~500만 원)
       · <strong>FarmWork 앱 기능 확장</strong>: 적엽 장 수 기록 등 (자체 개발)
