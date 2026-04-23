@@ -19,6 +19,13 @@ desktop.ini
 *.tmp
 *.log
 
+# MS Office 임시·잠금 파일
+~$*
+# Excel 백업
+*.xlk
+# PowerPoint 임시
+*.~pp
+
 # Node
 node_modules/
 
